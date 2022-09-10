@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32413.511
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "pds_CodeGenerator", "CodeGen\pds_CodeGenerator.pyproj", "{01D8BE83-BF4B-4AA7-B8BD-6C1738F32AEE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pds", "Src\pds.vcxproj", "{4D13E31B-E498-4995-AAFB-EA352C2729BF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8CEAEA0C-D1E2-468A-9697-DDE31F7DA829}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pds_Tests", "Tests\Tests.vcxproj", "{9DF1C719-67D0-4CC4-9693-04C18DC47B9C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4D13E31B-E498-4995-AAFB-EA352C2729BF} = {4D13E31B-E498-4995-AAFB-EA352C2729BF}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeGenerator", "CodeGenerator", "{FC0EFC2C-FDA2-437F-B59E-F5AE27547F50}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{01D8BE83-BF4B-4AA7-B8BD-6C1738F32AEE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{01D8BE83-BF4B-4AA7-B8BD-6C1738F32AEE}.Release|x64.ActiveCfg = Release|Any CPU
+		{4D13E31B-E498-4995-AAFB-EA352C2729BF}.Debug|x64.ActiveCfg = Debug|x64
+		{4D13E31B-E498-4995-AAFB-EA352C2729BF}.Debug|x64.Build.0 = Debug|x64
+		{4D13E31B-E498-4995-AAFB-EA352C2729BF}.Release|x64.ActiveCfg = Release|x64
+		{4D13E31B-E498-4995-AAFB-EA352C2729BF}.Release|x64.Build.0 = Release|x64
+		{9DF1C719-67D0-4CC4-9693-04C18DC47B9C}.Debug|x64.ActiveCfg = Debug|x64
+		{9DF1C719-67D0-4CC4-9693-04C18DC47B9C}.Debug|x64.Build.0 = Debug|x64
+		{9DF1C719-67D0-4CC4-9693-04C18DC47B9C}.Release|x64.ActiveCfg = Release|x64
+		{9DF1C719-67D0-4CC4-9693-04C18DC47B9C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{01D8BE83-BF4B-4AA7-B8BD-6C1738F32AEE} = {FC0EFC2C-FDA2-437F-B59E-F5AE27547F50}
+		{9DF1C719-67D0-4CC4-9693-04C18DC47B9C} = {8CEAEA0C-D1E2-468A-9697-DDE31F7DA829}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DBE29A03-980D-4EE7-939B-A054BEDD5261}
+	EndGlobalSection
+EndGlobal

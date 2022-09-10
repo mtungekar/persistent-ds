@@ -1,0 +1,12 @@
+[submodule "Dependencies/ctle"]
+	path = Dependencies/ctle
+	url = https://github.com/Cooolrik/ctle.git
+[submodule "Dependencies/fast_float"]
+	path = Dependencies/fast_float
+	url = https://github.com/fastfloat/fast_float.git
+[submodule "Dependencies/glm"]
+	path = Dependencies/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "Dependencies/librock_sha256"]
+	path = Dependencies/librock_sha256
+	url = https://github.com/forrestcavalier/librock_sha256.git

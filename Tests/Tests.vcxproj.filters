@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>
+      </Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="PCH">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>
+      </Extensions>
+    </Filter>
+    <Filter Include="Source Files\helpers">
+      <UniqueIdentifier>{92a56802-82b4-4d70-b730-62daad829830}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\TypesTests">
+      <UniqueIdentifier>{52af3c91-5202-4f1c-8a08-8adf929a7d4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GeneratedEntitiesTests">
+      <UniqueIdentifier>{f1bd99c2-0190-4792-913c-7610c9715ffe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\TestEntityTests">
+      <UniqueIdentifier>{9325b4db-14b5-4eaa-8be3-f7faedc67b2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MemoryStreamTests">
+      <UniqueIdentifier>{defb2543-0407-4c58-a6b2-fd066f038f68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\EntityManagementTests">
+      <UniqueIdentifier>{d26ab084-5ec8-4183-a7b3-09311f8ffb15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\BasicEntitiesTests">
+      <UniqueIdentifier>{c762032d-bd2f-4998-845e-3917ac74788a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <Filter>PCH</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeTests.cpp">
+      <Filter>Source Files\TypesTests</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityReadWriteTests.cpp">
+      <Filter>Source Files\TestEntityTests</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityTests.cpp">
+      <Filter>Source Files\TestEntityTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadWriteTests.cpp">
+      <Filter>Source Files\MemoryStreamTests</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityReaderRandomTests.cpp">
+      <Filter>Source Files\MemoryStreamTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SectionHierarchyReadWriteTests.cpp">
+      <Filter>Source Files\EntityManagementTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemTableTests.cpp">
+      <Filter>Source Files\BasicEntitiesTests</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectedGraphTests.cpp">
+      <Filter>Source Files\BasicEntitiesTests</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicTypesTests.cpp">
+      <Filter>Source Files\TypesTests</Filter>
+    </ClCompile>
+    <ClCompile Include="TestHelpers\random_vals.cpp" />
+    <ClCompile Include="..\Src\TestEntity.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>PCH</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestHelpers\random_vals.h">
+      <Filter>Source Files\helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestHelpers\structure_generation.h">
+      <Filter>Source Files\helpers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

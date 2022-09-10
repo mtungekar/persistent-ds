@@ -1,2 +1,1 @@
-# pds
-Persistent data structure framework
+# PDS - A persistent data structure framework in C++
