@@ -117,11 +117,6 @@
     <ClInclude Include="..\TestHelpers\structure_generation.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Src\pds.vcxproj">
-      <Project>{4d13e31b-e498-4995-aafb-ea352c2729bf}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
