@@ -17,6 +17,11 @@ add_library(persistent-ds
 # so that we will find TutorialConfig.h
 target_include_directories(persistent-ds PUBLIC
                           "${PROJECT_SOURCE_DIR}/include"
-						  "${PROJECT_SOURCE_DIR}/Dependencies"
+
+						  # dependencies
+						  "${PROJECT_SOURCE_DIR}/Dependencies/ctle"
+						  "${PROJECT_SOURCE_DIR}/Dependencies/fast_float/include"
+						  "${PROJECT_SOURCE_DIR}/Dependencies/glm"
+						  "${PROJECT_SOURCE_DIR}/Dependencies/librock_sha256"
                           )
 			
