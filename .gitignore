@@ -18,3 +18,4 @@ x64
 /Include/pds/TestEntity.h
 /Src/TestEntity.cpp
 *.user
+/build
