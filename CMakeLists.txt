@@ -16,7 +16,7 @@ add_library(persistent-ds
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
 target_include_directories(persistent-ds PUBLIC
-                          "${PROJECT_SOURCE_DIR}/include"
+                          "${PROJECT_SOURCE_DIR}/Include"
 
 						  # dependencies
 						  "${PROJECT_SOURCE_DIR}/Dependencies/ctle"
@@ -25,3 +25,11 @@ target_include_directories(persistent-ds PUBLIC
 						  "${PROJECT_SOURCE_DIR}/Dependencies/librock_sha256"
                           )
 			
+add_executable( SystemTest 
+				./Tests/SystemTest.cpp 
+				)			
+							
+target_link_libraries( SystemTest PUBLIC
+					   persistent-ds
+					   )
+				

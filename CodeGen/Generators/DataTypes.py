@@ -242,7 +242,7 @@ def print_type_information_source( type , value , value_count ):
 	lines.append('')
 	return lines
 
-def DataTypes_cpp():
+def DataTypes_inl():
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -293,7 +293,7 @@ def DataTypes_cpp():
 		lines.extend(print_type_information_source(type,type,1))
 	lines.append('    };')
 
-	hlp.write_lines_to_file("../Src/DataTypes.cpp",lines)
+	hlp.write_lines_to_file("../Include/pds/DataTypes.inl",lines)
 
 def DataValuePointers_h():
 	lines = []
@@ -371,5 +371,5 @@ def DataValuePointers_h():
 
 def run():
 	DataTypes_h()
-	DataTypes_cpp()
+	DataTypes_inl()
 	DataValuePointers_h()

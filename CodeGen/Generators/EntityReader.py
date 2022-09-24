@@ -80,14 +80,12 @@ def EntityReader_h():
 	lines.append('	};')
 	hlp.write_lines_to_file("../Include/pds/EntityReader.h",lines)
 
-def EntityReader_cpp():
+def EntityReader_inl():
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
-	lines.append('#pragma once')
-	lines.append('')
-	lines.append('#include <pds/EntityReader.h>')
-	lines.append('#include <pds/MemoryReadStream.h>')
+	lines.append('#include "EntityReader.h"')
+	lines.append('#include "MemoryReadStream.h"')
 	lines.append('')
 	lines.append('#include "EntityReaderTemplates.inl"')
 	lines.append('')
@@ -289,8 +287,8 @@ def EntityReader_cpp():
 				lines.append(f'')
 				
 	lines.append('	};')
-	hlp.write_lines_to_file("../Src/EntityReader.cpp",lines)
+	hlp.write_lines_to_file("../Include/pds/EntityReader.inl",lines)
 
 def run():
 	EntityReader_h()
-	EntityReader_cpp()
+	EntityReader_inl()

@@ -78,14 +78,12 @@ def EntityWriter_h():
 	lines.append('	};')
 	hlp.write_lines_to_file("../Include/pds/EntityWriter.h",lines)
 
-def EntityWriter_cpp():
+def EntityWriter_inl():
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
-	lines.append('#pragma once')
-	lines.append('')
-	lines.append('#include <pds/EntityWriter.h>')
-	lines.append('#include <pds/MemoryWriteStream.h>')
+	lines.append('#include "EntityWriter.h"')
+	lines.append('#include "MemoryWriteStream.h"')
 	lines.append('')
 	lines.append('#include "EntityWriterTemplates.inl"')
 	lines.append('')
@@ -230,12 +228,9 @@ def EntityWriter_cpp():
 		type_name = type[0]
 		implementing_type = type[1]
 
-
-
-
 	lines.append('	};')
-	hlp.write_lines_to_file("../Src/EntityWriter.cpp",lines)
+	hlp.write_lines_to_file("../Include/pds/EntityWriter.inl",lines)
 
 def run():
 	EntityWriter_h()
-	EntityWriter_cpp()
+	EntityWriter_inl()

@@ -3,7 +3,7 @@
 
 import CodeGeneratorHelpers as hlp
 
-def CreateEntityHeader(item):
+def CreateItemHeader(item):
 	packageName = item.Package.Name
 
 	lines = []
@@ -11,12 +11,14 @@ def CreateEntityHeader(item):
 	lines.append('')
 	lines.append('#pragma once')
 	lines.append('')
-	lines.append('#include <pds/pds.h>')
 		
 	# list dependences that needs to be included in the header
 	for dep in item.Dependencies:
 		if dep.IncludeInHeader:
 			lines.append(f'#include <{dep.PackageName}/{dep.Name}.h>')
+
+	lines.append('')
+	lines.append(f'#include <{packageName}/{packageName}.h>')
 
 	lines.append('')
 	lines.append(f'namespace {packageName}')
@@ -306,7 +308,7 @@ def ImplementVariableValidatorCall(item,var):
 	return lines
 
 
-def CreateEntitySource(item):
+def CreateItemSource(item):
 	packageName = item.Package.Name
 
 	lines = []
@@ -314,7 +316,6 @@ def CreateEntitySource(item):
 	lines.append('')
 	lines.append('#include <glm/glm.hpp>')
 	lines.append('')	
-	lines.append(f'#include <pds/pds.h>')
 	lines.append(f'#include <pds/EntityWriter.h>')
 	lines.append(f'#include <pds/EntityReader.h>')
 	lines.append(f'#include <pds/EntityValidator.h>')
@@ -446,8 +447,27 @@ def CreateEntitySource(item):
 	lines.append('    };')
 	hlp.write_lines_to_file(f"{item.Package.SrcPath}/{item.Name}.cpp",lines)
 
+# create a header for the package, which has all needed references and definitions
+def CreatePackageHeader( package ):
+	packageName = package.Name
+
+	lines = []
+	lines.extend( hlp.generate_header() )
+	lines.append('')
+	lines.append(f'#include <pds/pds.h>')
+	lines.append('')
+		
+	lines.append('')
+	lines.append(f'namespace {packageName}')
+	lines.append('    {')
+	lines.append('    using Entity = pds::Entity;')
+	lines.append('    };')
+
+	hlp.write_lines_to_file(f"{package.HeaderPath}/{packageName}.h",lines)
+
 def run( package ):
+	CreatePackageHeader( package )
 	for item in package.Items:
-		CreateEntityHeader( item )
-		CreateEntitySource( item )
+		CreateItemHeader( item )
+		CreateItemSource( item )
 

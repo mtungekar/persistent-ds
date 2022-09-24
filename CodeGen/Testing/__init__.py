@@ -3,16 +3,16 @@
 
 from EntitiesHelpers import *
 
-Items = []
+# Items = []
 
-Items.append(
-    Entity(
-        namespace = "pds" ,
-        name = "TestEntity", 
-        dependencies = [],
-        variables = [ Variable("string", "Name"),
-                      Variable("string", "OptionalText", optional = True ) ]
-        )
-    )
+# Items.append(
+    # Entity(
+        # package = "testpackage" ,
+        # name = "TestEntity", 
+        # dependencies = [],
+        # variables = [ Variable("string", "Name"),
+                      # Variable("string", "OptionalText", optional = True ) ]
+        # )
+    # )
 
-hlp.run_module('EntityGenerator', "../Include/pds" ,  "../Src" , Items)
+#hlp.run_module('EntityGenerator', "../Tests" ,  "../Src" , Items)

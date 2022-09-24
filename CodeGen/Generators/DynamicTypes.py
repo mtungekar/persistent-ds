@@ -35,7 +35,7 @@ class AllocatorHashTable:
 					self.insert_into_table( f'&_dt_{variant_name}_ct_{cont.implementing_type}_DynamicTypeObject' , variant_id , cont.container_id )
 
 
-def DynamicTypes_cpp():
+def DynamicTypes_inl():
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -226,7 +226,7 @@ def DynamicTypes_cpp():
 	# end of namespace
 	lines.append('    };')
 	lines.append('    };')
-	hlp.write_lines_to_file("../Src/DynamicTypes.cpp",lines)
+	hlp.write_lines_to_file("../Include/pds/DynamicTypes.inl",lines)
 	
 def DynamicTypesTests_cpp():
 	lines = []
@@ -311,5 +311,5 @@ def DynamicTypesTests_cpp():
 	hlp.write_lines_to_file("../Tests/DynamicTypesTests.cpp",lines)	
 	
 def run():
-	DynamicTypes_cpp()
+	DynamicTypes_inl()
 	DynamicTypesTests_cpp()

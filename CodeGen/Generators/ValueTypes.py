@@ -52,11 +52,11 @@ def CombinedTypes_h():
 	lines.append('    };')
 	hlp.write_lines_to_file("../Include/pds/ValueTypes.h",lines)
 
-def CombinedTypes_cpp():
+def CombinedTypes_inl():
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
-	lines.append('#include <pds/ValueTypes.h>')
+	lines.append('#include "ValueTypes.h"')
 	lines.append('')
 	lines.append('#include <glm/gtc/type_ptr.hpp>')
 	lines.append('')
@@ -77,8 +77,8 @@ def CombinedTypes_cpp():
 
 	# end of namespace
 	lines.append('    };')
-	hlp.write_lines_to_file("../Src/ValueTypes.cpp",lines)
+	hlp.write_lines_to_file("../Include/pds/ValueTypes.inl",lines)
 	
 def run():
 	CombinedTypes_h()
-	CombinedTypes_cpp()
+	CombinedTypes_inl()
