@@ -2,6 +2,16 @@
 # Licensed under the MIT license https://github.com/Cooolrik/pds/blob/main/LICENSE
 
 import CodeGeneratorHelpers as hlp
+import sys
+
+class Package:
+	def __init__(self, name, headerPath, srcPath, items):
+		self.Name = name
+		self.Items = items
+		for item in self.Items:
+			item.Package = self
+		self.HeaderPath = headerPath
+		self.SrcPath = srcPath
 
 class Item:
 	def __init__(self, name, variables, dependencies = [], templates = [], validations = [] ):
@@ -27,9 +37,9 @@ class Entity(Item):
 		self.IsEntity = True
 
 class Dependency:
-	def __init__(self, namespace, name, include_in_header = False ):
+	def __init__(self, package, name, include_in_header = False ):
 		self.Name = name
-		self.Namespace = namespace
+		self.PackageName = package
 		self.IncludeInHeader = include_in_header
 
 class Template:

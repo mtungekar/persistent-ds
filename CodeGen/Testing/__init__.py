@@ -7,6 +7,7 @@ Items = []
 
 Items.append(
     Entity(
+        namespace = "pds" ,
         name = "TestEntity", 
         dependencies = [],
         variables = [ Variable("string", "Name"),

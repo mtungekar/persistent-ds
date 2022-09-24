@@ -3,7 +3,9 @@
 
 import CodeGeneratorHelpers as hlp
 
-def CreateEntityHeader(path,item):
+def CreateEntityHeader(item):
+	packageName = item.Package.Name
+
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -14,10 +16,10 @@ def CreateEntityHeader(path,item):
 	# list dependences that needs to be included in the header
 	for dep in item.Dependencies:
 		if dep.IncludeInHeader:
-			lines.append(f'#include <{dep.Namespace}/{dep.Name}.h>')
+			lines.append(f'#include <{dep.PackageName}/{dep.Name}.h>')
 
 	lines.append('')
-	lines.append('namespace pds')
+	lines.append(f'namespace {packageName}')
 	lines.append('    {')
 
 	# list dependences that only needs a forward reference in the header
@@ -133,7 +135,7 @@ def CreateEntityHeader(path,item):
 
 	lines.append('    };')
 
-	hlp.write_lines_to_file(f"{path}/{item.Name}.h",lines)
+	hlp.write_lines_to_file(f"{item.Package.HeaderPath}/{item.Name}.h",lines)
 
 def ImplementClearCall(item,var):
 	lines = []
@@ -304,7 +306,9 @@ def ImplementVariableValidatorCall(item,var):
 	return lines
 
 
-def CreateEntitySource(path,item):
+def CreateEntitySource(item):
+	packageName = item.Package.Name
+
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -315,15 +319,15 @@ def CreateEntitySource(path,item):
 	lines.append(f'#include <pds/EntityReader.h>')
 	lines.append(f'#include <pds/EntityValidator.h>')
 	lines.append('')
-	lines.append(f'#include <pds/{item.Name}.h>')
+	lines.append(f'#include <{packageName}/{item.Name}.h>')
 		
 	# include dependences that were forward referenced in the header
 	for dep in item.Dependencies:
 		if not dep.IncludeInHeader:
-			lines.append(f'#include "{dep.Namespace}{dep.Name}.h"')
+			lines.append(f'#include <{dep.PackageName}/{dep.Name}.h>')
 		
 	lines.append('')
-	lines.append('namespace pds')
+	lines.append(f'namespace {packageName}')
 	lines.append('    {')
 	
 	if item.IsEntity:
@@ -440,10 +444,10 @@ def CreateEntitySource(path,item):
 		lines.append('')
 
 	lines.append('    };')
-	hlp.write_lines_to_file(f"{path}/{item.Name}.cpp",lines)
+	hlp.write_lines_to_file(f"{item.Package.SrcPath}/{item.Name}.cpp",lines)
 
-def run( headerpath , sourcepath , items ):
-	for item in items:
-		CreateEntityHeader( headerpath , item )
-		CreateEntitySource( sourcepath , item )
+def run( package ):
+	for item in package.Items:
+		CreateEntityHeader( item )
+		CreateEntitySource( item )
 
