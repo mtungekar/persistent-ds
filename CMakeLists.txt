@@ -2,22 +2,57 @@ cmake_minimum_required(VERSION 3.21)
 
 project( persistent-ds )
 			
-add_executable( SystemTest 
-				./Tests/SystemTest.cpp 
-				)			
-						
-# add the binary tree to the search path for include files
-# so that we will find TutorialConfig.h
-target_include_directories(SystemTest PUBLIC
-                          "${PROJECT_SOURCE_DIR}/Include"
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)			
+				
+	# dowload gtest
+	include(FetchContent)
+	FetchContent_Declare(
+	  googletest
+	  URL https://github.com/google/googletest/archive/58d77fa8070e8cec2dc1ed015d66b454c8d78850.zip
+	)
+	FetchContent_MakeAvailable(googletest)			
+	
+	# SystemTest run full system tests
+	add_executable( SystemTest
+					./Tests/SystemTest.cpp 
+					./Tests/TestPack1/TestPack1.cpp 
+					./Tests/TestPack2/TestPack2.cpp 
+					./Tests/TestPack3/TestPack3.cpp 
+					)	
+	target_include_directories(	SystemTest 
+								PUBLIC
+									"${PROJECT_SOURCE_DIR}/Include"
+									"${PROJECT_SOURCE_DIR}/Dependencies/ctle"
+									"${PROJECT_SOURCE_DIR}/Dependencies/fast_float/include"
+									"${PROJECT_SOURCE_DIR}/Dependencies/glm"
+									"${PROJECT_SOURCE_DIR}/Dependencies/librock_sha256"
+								)
+	target_link_libraries( 	SystemTest 
+							Rpcrt4
+							)
 
-						  # dependencies
-						  "${PROJECT_SOURCE_DIR}/Dependencies/ctle"
-						  "${PROJECT_SOURCE_DIR}/Dependencies/fast_float/include"
-						  "${PROJECT_SOURCE_DIR}/Dependencies/glm"
-						  "${PROJECT_SOURCE_DIR}/Dependencies/librock_sha256"
-                          )
-									
-target_link_libraries( SystemTest PUBLIC
-					   Rpcrt4
-					   )
+	# Tests run unit tests and other specific tests
+	add_executable( Tests
+					./Tests/Tests.cpp 
+					./Tests/TypeTests.cpp 
+					./Tests/TestHelpers/random_vals.cpp 
+					./Tests/TestPack1/TestPack1.cpp 
+					./Tests/TestPack2/TestPack2.cpp 
+					./Tests/TestPack3/TestPack3.cpp 
+					)
+	target_include_directories( Tests 
+								PUBLIC
+									"${PROJECT_SOURCE_DIR}/Include"
+									"${PROJECT_SOURCE_DIR}/Dependencies/ctle"
+									"${PROJECT_SOURCE_DIR}/Dependencies/fast_float/include"
+									"${PROJECT_SOURCE_DIR}/Dependencies/glm"
+									"${PROJECT_SOURCE_DIR}/Dependencies/librock_sha256"
+								)
+	target_link_libraries( 	Tests 
+							gtest_main 
+							Rpcrt4
+							)
+
+	# enable_testing()	
+	
+endif()

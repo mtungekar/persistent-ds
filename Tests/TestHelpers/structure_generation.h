@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <pds/TestEntity.h>
-
 // creates a random tree using recursive calls. 
 // The parameter is the type of DirectedGraph to use for the tree
 template<class Graph>
