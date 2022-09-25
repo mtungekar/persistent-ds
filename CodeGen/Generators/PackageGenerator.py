@@ -48,7 +48,9 @@ def CreateItemHeader(item):
 	lines.append('            class MF;')
 	lines.append('            friend MF;')
 	lines.append('')
-
+	lines.append(f'            static constexpr char *ItemTypeString = "{packageName}.{item.Name}";')
+	lines.append('')
+	
 	if item.IsEntity:
 		lines.append(f'            virtual const char *EntityTypeString() const;')
 		lines.append('')
@@ -333,9 +335,10 @@ def CreateItemSource(item):
 	lines.append('')
 	lines.append(f'namespace {packageName}')
 	lines.append('    {')
-	
+
+	lines.append('')
 	if item.IsEntity:
-		lines.append(f'    const char *{item.Name}::EntityTypeString() const {{ return "{item.Name}"; }}')
+		lines.append(f'    const char *{item.Name}::EntityTypeString() const {{ return {item.Name}::ItemTypeString; }}')
 		lines.append('')
 
 	# check if there are entities in the variable list
@@ -430,7 +433,7 @@ def CreateItemSource(item):
 	if item.IsEntity:
 		lines.append(f'    const {item.Name} *{item.Name}::MF::EntitySafeCast( const pds::Entity *srcEnt )')
 		lines.append('        {')
-		lines.append(f'        if( srcEnt && std::string(srcEnt->EntityTypeString()) == "{item.Name}" )')
+		lines.append(f'        if( srcEnt && std::string(srcEnt->EntityTypeString()) == {item.Name}::ItemTypeString )')
 		lines.append('            {')
 		lines.append(f'            return (const {item.Name} *)(srcEnt);')
 		lines.append('            }')
@@ -439,7 +442,7 @@ def CreateItemSource(item):
 		lines.append('')
 		lines.append(f'    std::shared_ptr<const {item.Name}> {item.Name}::MF::EntitySafeCast( std::shared_ptr<const pds::Entity> srcEnt )')
 		lines.append('        {')
-		lines.append(f'        if( srcEnt && std::string(srcEnt->EntityTypeString()) == "{item.Name}" )')
+		lines.append(f'        if( srcEnt && std::string(srcEnt->EntityTypeString()) == {item.Name}::ItemTypeString )')
 		lines.append('            {')
 		lines.append(f'            return std::static_pointer_cast<const {item.Name}>(srcEnt);')
 		lines.append('            }')
@@ -461,9 +464,9 @@ class EntityHashTable:
 			hash = c_ulonglong(hash.value * c_ulonglong(0x00000100000001B3).value)
 		return hash.value
 
-	def insert_into_table( self , entity_name ):
+	def insert_into_table( self , package_name , entity_name ):
 		# use hash function to generate a good starting point
-		hash_pos = self.hash_function( entity_name ) % self.hash_table_size
+		hash_pos = self.hash_function( package_name + "." + entity_name ) % self.hash_table_size
 		# find first empty slot
 		while( self.hash_table[hash_pos] != None ):
 			hash_pos = hash_pos+1
@@ -481,7 +484,7 @@ class EntityHashTable:
 		# fill up hash table, only fill with entities
 		for item in items:
 			if item.IsEntity:
-				self.insert_into_table( item.Name );
+				self.insert_into_table( item.Package.Name , item.Name );
 
 def CreatePackageHandler_inl( package ):
 	packageName = package.Name
@@ -523,7 +526,7 @@ def CreatePackageHandler_inl( package ):
 			lines.append(f'    static const class _et_{item.Name}_EntityType : public _entityTypeClass' )
 			lines.append(f'        {{' )
 			lines.append(f'        public:' )
-			lines.append(f'            virtual const char *EntityTypeString() const {{ return "{item.Name}"; }}' )
+			lines.append(f'            virtual const char *EntityTypeString() const {{ return {item.Name}::ItemTypeString; }}' )
 			lines.append(f'            virtual std::shared_ptr<pds::Entity> New() const {{ return std::make_shared<{item.Name}>(); }}')
 			lines.append(f'            virtual void Clear( pds::Entity *obj ) const {{ {item.Name}::MF::Clear( *(({item.Name}*)obj) ); }}')
 			lines.append(f'            virtual bool Equals( const pds::Entity *lval , const pds::Entity *rval ) const {{ return {item.Name}::MF::Equals( (({item.Name}*)lval) , (({item.Name}*)rval) ); }}')
@@ -569,8 +572,8 @@ def CreatePackageHandler_inl( package ):
 	lines.append('                hashValue = 0;')
 	lines.append('            }')
 	lines.append('')
-	lines.append('        // entity was not found (this should never happen unless testing)')
-	lines.append('        pdsErrorLog << "_findEntityTypeClass: Invalid entity parameter { " << typeNameString << " } " << pdsErrorLogEnd;')
+	#lines.append('        // entity was not found (this should never happen unless testing)')
+	#lines.append('        pdsErrorLog << "_findEntityTypeClass: Invalid entity parameter { " << typeNameString << " } " << pdsErrorLogEnd;')
 	lines.append('        return nullptr;')
 	lines.append('        }')
 	lines.append('')
@@ -672,10 +675,16 @@ def CreatePackageSourceFile( package ):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
-	lines.append(f'#include <pds/pds.inl>')
-	lines.append('')
+	lines.append('// All pds imports and typedefs')
 	lines.append(f'#include "{packageName}.h"')
 	lines.append('')
+
+	lines.append('// Needed inline code from pds')
+	lines.append('#include <pds/EntityReader.inl>')
+	lines.append('#include <pds/EntityWriter.inl>')
+	lines.append('')
+	
+	lines.append('// All headers and code for this package')
 	for item in package.Items:
 		lines.append(f'#include "{item.Name}.h"')
 

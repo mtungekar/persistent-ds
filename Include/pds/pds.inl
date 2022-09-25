@@ -121,7 +121,89 @@ template <> std::string pds::value_to_hex_string<uuid>( uuid value )
 template <> std::string pds::value_to_hex_string<hash>( hash value )
 	{
 	static_assert(sizeof( hash ) == 32, "Error: hash is assumed to be of size 32.");
+	// note: no need to swap order of bytes. 
+	// The hash is always ordered the same, regardless of the hardware (basically a big-endian 256 bit value)
 	return bytes_to_hex_string( &value, 32 );
+	}
+
+static inline u8 decode_hex_char( char c )
+	{
+	if( c >= '0' && c <= '9' )
+		return c - '0';
+	else if( c >= 'a' && c <= 'f' )
+		return (c - 'a') + 10;
+	else if( c >= 'A' && c <= 'F' )
+		return (c - 'A') + 10;
+
+	pdsRuntimeCheck( false, Status::EParam, "invalid hex character c" );
+	}
+
+// retrieves bytes from a hex string of known length.
+// note: the count is equal to the number of bytes, and the hex string is assumed to be twice the count (since two hex values is combined into one byte)
+void pds::hex_string_to_bytes( void *bytes, const char *hex_string, size_t count )
+	{
+	pdsRuntimeCheck( bytes, Status::EParam, "bytes cannot be nullptr" );
+
+	u8 *p = (u8 *)bytes;
+	for( size_t i = 0; i < count; ++i )
+		{
+		p[i] = decode_hex_char( hex_string[i * 2 + 0] ) << 4 
+			| decode_hex_char( hex_string[i * 2 + 1] );
+		}
+	}
+
+template <> u8 pds::hex_string_to_value<u8>( const char *hex_string )
+	{
+	u8 ret;
+	hex_string_to_bytes( &ret, hex_string, sizeof( u8 ) );
+	return ret;
+	}
+
+template <> u16 pds::hex_string_to_value<u16>( const char *hex_string )
+	{
+	u8 bytes[sizeof( u16 )];
+	hex_string_to_bytes( bytes, hex_string, sizeof( u16 ) );
+	return value_from_bigendian<u16>( bytes );
+	}
+
+template <> u32 pds::hex_string_to_value<u32>( const char *hex_string )
+	{
+	u8 bytes[sizeof( u32 )];
+	hex_string_to_bytes( bytes, hex_string, sizeof( u32 ) );
+	return value_from_bigendian<u32>( bytes );
+	}
+
+template <> u64 pds::hex_string_to_value<u64>( const char *hex_string )
+	{
+	u8 bytes[sizeof( u64 )];
+	hex_string_to_bytes( bytes, hex_string, sizeof( u64 ) );
+	return value_from_bigendian<u64>( bytes );
+	}
+
+template <> uuid pds::hex_string_to_value<uuid>( const char *hex_string )
+	{
+	pdsRuntimeCheck( hex_string[8] == '-'
+		&& hex_string[13] == '-'
+		&& hex_string[18] == '-'
+		&& hex_string[23] == '-', Status::EParam, "hex_string_to_value ill-formated hex_string" );
+
+	uuid value;
+	value.Data1 = hex_string_to_value<u32>( &hex_string[0] );
+	value.Data2 = hex_string_to_value<u16>( &hex_string[9] );
+	value.Data3 = hex_string_to_value<u16>( &hex_string[14] );
+	hex_string_to_bytes( &value.Data4[0], &hex_string[19] , 2 );
+	hex_string_to_bytes( &value.Data4[2], &hex_string[24] , 6 );
+	return value;
+	}
+
+template <> hash pds::hex_string_to_value<hash>( const char *hex_string )
+	{
+	static_assert(sizeof( hash ) == 32, "Error: hash is assumed to be of size 32.");
+	hash value;
+	hex_string_to_bytes( &value, hex_string, 32 );
+	// note: no need to swap order of bytes. 
+	// The hash is always ordered the same, regardless of the hardware (basically a big-endian 256 bit value)
+	return value;
 	}
 
 std::wstring pds::full_path( const std::wstring &path )
@@ -155,45 +237,77 @@ item_ref item_ref::make_ref()
 
 static std::shared_ptr<Entity> entityNew( const std::vector<const EntityHandler::PackageRecord*> &records , const char *entityTypeString )
 	{
+	if( !entityTypeString )
+		{
+		pdsErrorLog << "Invalid parameter, entityTypeString must be a pointer to a string" << pdsErrorLogEnd;
+		return false;
+		}
+
 	for( size_t i = 0; i < records.size(); ++i )
 		{
 		auto ret = records[i]->New( entityTypeString );
 		if( ret )
 			return ret;
 		}
+
+	pdsErrorLog << "Unrecognized entity, cannot allocate entity of type: " << entityTypeString << " is not registered with any package." << pdsErrorLogEnd;
 	return nullptr;
 	}
 
 static bool entityWrite( const std::vector<const EntityHandler::PackageRecord*> &records , const Entity *obj, EntityWriter &writer )
 	{
+	if( !obj )
+		{
+		pdsErrorLog << "Invalid parameter, obj must be a pointer to an allocated object" << pdsErrorLogEnd;
+		return false;
+		}
+
 	for( size_t i = 0; i < records.size(); ++i )
 		{
 		auto ret = records[i]->Write( obj, writer );
 		if( ret )
 			return ret;
 		}
+
+	pdsErrorLog << "Unrecognized entity, " << obj->EntityTypeString() << " is not registered with any package." << pdsErrorLogEnd;
 	return false;
 	}
 
 static bool entityRead( const std::vector<const EntityHandler::PackageRecord*> &records , Entity *obj, EntityReader &reader )
 	{
+	if( !obj )
+		{
+		pdsErrorLog << "Invalid parameter, obj must be a pointer to an allocated object" << pdsErrorLogEnd;
+		return false;
+		}
+
 	for( size_t i = 0; i < records.size(); ++i )
 		{
 		auto ret = records[i]->Read( obj, reader );
 		if( ret )
 			return ret;
 		}
+
+	pdsErrorLog << "Unrecognized entity, " << obj->EntityTypeString() << " is not registered with any package." << pdsErrorLogEnd;
 	return false;
 	}
 
 static bool entityValidate( const std::vector<const EntityHandler::PackageRecord*> &records , const Entity *obj, EntityValidator &validator )
 	{
+	if( !obj )
+		{
+		pdsErrorLog << "Invalid parameter, obj must be a pointer to an allocated object" << pdsErrorLogEnd;
+		return false;
+		}
+
 	for( size_t i = 0; i < records.size(); ++i )
 		{
 		auto ret = records[i]->Validate( obj, validator );
 		if( ret )
 			return ret;
 		}
+
+	pdsErrorLog << "Unrecognized entity, " << obj->EntityTypeString() << " is not registered with any package." << pdsErrorLogEnd;
 	return false;
 	}
 

@@ -15,7 +15,7 @@
 #include "DataTypes.h"
 #include "Log.h"
 
-#define pdsErrorLog Log::Error( __func__ , __FILE__ , __LINE__ ) 
+#define pdsErrorLog pds::Log::Error( __func__ , __FILE__ , __LINE__ ) 
 #define pdsErrorLogEnd std::endl
 
 #define pdsValidationError( errorid ) validator.ReportError( errorid , __func__ , __FILE__ , __LINE__ ) 
@@ -198,6 +198,17 @@ namespace pds
 	template <> std::string value_to_hex_string<u64>( u64 value );
 	template <> std::string value_to_hex_string<uuid>( uuid value );
 	template <> std::string value_to_hex_string<hash>( hash value );
+
+	// retrieves bytes from a hex string of known length.
+	// note: the count is equal to the number of bytes, and the hex string is assumed to be twice the count (since two hex values is combined into one byte)
+	void hex_string_to_bytes( void *bytes, const char *hex_string, size_t count );
+	template <class T> T hex_string_to_value( const char *hex_string ) { static_assert(false, "hex_string_to_value template can only be used with defined values, not a generic type T"); }
+	template <> u8 hex_string_to_value<u8>( const char *hex_string );
+	template <> u16 hex_string_to_value<u16>( const char *hex_string );
+	template <> u32 hex_string_to_value<u32>( const char *hex_string );
+	template <> u64 hex_string_to_value<u64>( const char *hex_string );
+	template <> uuid hex_string_to_value<uuid>( const char *hex_string );
+	template <> hash hex_string_to_value<hash>( const char *hex_string );
 
 	// converts file path in wstring to an absolute or full file path 
 	std::wstring full_path( const std::wstring &path );
