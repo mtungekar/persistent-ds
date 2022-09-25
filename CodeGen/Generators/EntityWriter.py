@@ -89,8 +89,6 @@ def EntityWriter_inl():
 	lines.append('')
 	lines.append('namespace pds')
 	lines.append('	{')
-	lines.append('	EntityWriter::EntityWriter( MemoryWriteStream &_dstream ) : dstream( _dstream ) , start_position( _dstream.GetPosition() ) {}')
-	lines.append('')
 	 
 	# print the base types
 	for basetype in hlp.base_types:
@@ -103,7 +101,7 @@ def EntityWriter_inl():
 
 			if type_impl.overrides_type:
 				lines.append(f'	// {implementing_type}: using {item_type} to store')
-				lines.append(f'	template <> bool EntityWriter::Write<{implementing_type}>( const char *key, const u8 key_length, const {implementing_type} &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<{implementing_type}>( const char *key, const u8 key_length, const {implementing_type} &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		const {item_type} tmp_variable = src_variable;')
 				lines.append(f'		return this->Write<{item_type}>( key, key_length, tmp_variable );')
@@ -111,7 +109,7 @@ def EntityWriter_inl():
 				lines.append(f'')
 			
 				lines.append(f'	// {implementing_type}: using optional_value<{item_type}> to store' )
-				lines.append(f'	template <> bool EntityWriter::Write<optional_value<{implementing_type}>>( const char *key, const u8 key_length, const optional_value<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<optional_value<{implementing_type}>>( const char *key, const u8 key_length, const optional_value<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		optional_value<{item_type}> tmp_variable;')
 				lines.append(f'		if( src_variable.has_value() )')
@@ -121,7 +119,7 @@ def EntityWriter_inl():
 				lines.append(f'')
 			
 				lines.append(f'	// {implementing_type}: using std::vector<{item_type}> to store' )
-				lines.append(f'	template <> bool EntityWriter::Write<std::vector<{implementing_type}>>( const char *key, const u8 key_length, const std::vector<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<std::vector<{implementing_type}>>( const char *key, const u8 key_length, const std::vector<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		std::vector<{item_type}> tmp_variable;')
 				lines.append(f'		tmp_variable.reserve( src_variable.size() );')
@@ -131,7 +129,7 @@ def EntityWriter_inl():
 				lines.append(f'')
 			
 				lines.append(f'	//  {implementing_type}: optional_vector<{item_type}> to store' )
-				lines.append(f'	template <> bool EntityWriter::Write<optional_vector<{implementing_type}>>( const char *key, const u8 key_length, const optional_vector<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<optional_vector<{implementing_type}>>( const char *key, const u8 key_length, const optional_vector<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		optional_vector<{item_type}> tmp_variable;')
 				lines.append(f'		if( src_variable.has_value() )')
@@ -145,7 +143,7 @@ def EntityWriter_inl():
 				lines.append(f'')
 				
 				lines.append(f'	// {implementing_type}: using idx_vector<{item_type}> to store' )
-				lines.append(f'	template <> bool EntityWriter::Write<idx_vector<{implementing_type}>>( const char *key, const u8 key_length, const idx_vector<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<idx_vector<{implementing_type}>>( const char *key, const u8 key_length, const idx_vector<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		idx_vector<{item_type}> tmp_variable;')
 				lines.append(f'		tmp_variable.index().reserve( src_variable.index().size() );')
@@ -157,7 +155,7 @@ def EntityWriter_inl():
 				lines.append(f'')
 
 				lines.append(f'	//  {implementing_type}: optional_idx_vector<{item_type}> to store' )
-				lines.append(f'	template <> bool EntityWriter::Write<optional_idx_vector<{implementing_type}>>( const char *key, const u8 key_length, const optional_idx_vector<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<optional_idx_vector<{implementing_type}>>( const char *key, const u8 key_length, const optional_idx_vector<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		optional_idx_vector<{item_type}> tmp_variable;')
 				lines.append(f'		if( src_variable.has_value() )')
@@ -177,14 +175,14 @@ def EntityWriter_inl():
 				array_type_name = 'VT_Array_' + basetype.name
 				
 				lines.append(f'	// {type_name}: {implementing_type}')
-				lines.append(f'	template <> bool EntityWriter::Write<{implementing_type}>( const char *key, const u8 key_length, const {implementing_type} &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<{implementing_type}>( const char *key, const u8 key_length, const {implementing_type} &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		return write_single_value<ValueType::{type_name},{implementing_type}>( this->dstream, key, key_length, &src_variable );')
 				lines.append(f'		}}')
 				lines.append(f'')
 				
 				lines.append(f'	// {type_name}: optional_value<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityWriter::Write<optional_value<{implementing_type}>>( const char *key, const u8 key_length, const optional_value<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<optional_value<{implementing_type}>>( const char *key, const u8 key_length, const optional_value<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		const {implementing_type} *p_src_variable = (src_variable.has_value()) ? &(src_variable.value()) : nullptr;')
 				lines.append(f'		return write_single_value<ValueType::{type_name},{implementing_type}>( this->dstream, key, key_length, p_src_variable );')
@@ -192,14 +190,14 @@ def EntityWriter_inl():
 				lines.append(f'')
 				
 				lines.append(f'	//  {array_type_name}: std::vector<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityWriter::Write<std::vector<{implementing_type}>>( const char *key, const u8 key_length, const std::vector<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<std::vector<{implementing_type}>>( const char *key, const u8 key_length, const std::vector<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		return write_array<ValueType::{array_type_name},{implementing_type}>(this->dstream, key, key_length, &src_variable , nullptr );')
 				lines.append(f'		}}')
 				lines.append(f'')
 				
 				lines.append(f'	//  {array_type_name}: optional_vector<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityWriter::Write<optional_vector<{implementing_type}>>( const char *key, const u8 key_length, const optional_vector<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<optional_vector<{implementing_type}>>( const char *key, const u8 key_length, const optional_vector<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		const std::vector<{implementing_type}> *p_src_variable = (src_variable.has_value()) ? &(src_variable.values()) : nullptr;')
 				lines.append(f'		return write_array<ValueType::{array_type_name},{implementing_type}>(this->dstream, key, key_length, p_src_variable , nullptr );')
@@ -207,14 +205,14 @@ def EntityWriter_inl():
 				lines.append(f'')
 				
 				lines.append(f'	//  {array_type_name}: idx_vector<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityWriter::Write<idx_vector<{implementing_type}>>( const char *key, const u8 key_length, const idx_vector<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<idx_vector<{implementing_type}>>( const char *key, const u8 key_length, const idx_vector<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		return write_array<ValueType::{array_type_name},{implementing_type}>(this->dstream, key, key_length, &(src_variable.values()) , &(src_variable.index()) );')
 				lines.append(f'		}}')
 				lines.append(f'')
 				
 				lines.append(f'	//  {array_type_name}: optional_idx_vector<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityWriter::Write<optional_idx_vector<{implementing_type}>>( const char *key, const u8 key_length, const optional_idx_vector<{implementing_type}> &src_variable )')
+				lines.append(f'	template <> inline bool EntityWriter::Write<optional_idx_vector<{implementing_type}>>( const char *key, const u8 key_length, const optional_idx_vector<{implementing_type}> &src_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		const std::vector<{implementing_type}> *p_src_values = (src_variable.has_value()) ? &(src_variable.values()) : nullptr;')
 				lines.append(f'		const std::vector<i32> *p_src_index = (src_variable.has_value()) ? &(src_variable.index()) : nullptr;')

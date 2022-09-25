@@ -1,21 +1,37 @@
 // pds - Persistent data structure framework, Copyright (c) 2022 Ulrik Lindahl
 // Licensed under the MIT license https://github.com/Cooolrik/pds/blob/main/LICENSE
+#define PDS_MAIN_BUILD_FILE
 
 #include <pds/pds.h>
-
-#include <pds/EntityReader.h>
-#include <pds/EntityValidator.h>
-#include <pds/EntityWriter.h>
-
-#include <pds/MemoryReadStream.h>
-#include <pds/MemoryWriteStream.h>
-
-#include <pds/SHA256.h>
-//#include <pds/EntityTypes.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Rpc.h>
+
+#include "SHA256.h"
+#include "DynamicTypes.h"
+#include "ValueTypes.h"
+#include "Varying.h"
+
+#include "MemoryWriteStream.h"
+#include "MemoryReadStream.h"
+
+#include "EntityWriter.h"
+#include "EntityReader.h"
+#include "EntityValidator.h"
+
+#include "BidirectionalMap.h"
+#include "DirectedGraph.h"
+#include "IndexedVector.h"
+#include "ItemTable.h"
+
+#include "DataValuePointers.h"
+
+#include "SHA256.inl"
+
+#include "DataTypes.inl"
+#include "EntityWriter.inl"
+#include "EntityReader.inl"
 
 using namespace pds;
 using std::pair;
@@ -137,7 +153,7 @@ item_ref item_ref::make_ref()
 	return ref;
 	}
 
-static std::shared_ptr<Entity> entityNew( const std::vector<const EntityHandler::Record*> &records , const char *entityTypeString )
+static std::shared_ptr<Entity> entityNew( const std::vector<const EntityHandler::PackageRecord*> &records , const char *entityTypeString )
 	{
 	for( size_t i = 0; i < records.size(); ++i )
 		{
@@ -148,7 +164,7 @@ static std::shared_ptr<Entity> entityNew( const std::vector<const EntityHandler:
 	return nullptr;
 	}
 
-static bool entityWrite( const std::vector<const EntityHandler::Record*> &records , const Entity *obj, EntityWriter &writer )
+static bool entityWrite( const std::vector<const EntityHandler::PackageRecord*> &records , const Entity *obj, EntityWriter &writer )
 	{
 	for( size_t i = 0; i < records.size(); ++i )
 		{
@@ -159,7 +175,7 @@ static bool entityWrite( const std::vector<const EntityHandler::Record*> &record
 	return false;
 	}
 
-static bool entityRead( const std::vector<const EntityHandler::Record*> &records , Entity *obj, EntityReader &reader )
+static bool entityRead( const std::vector<const EntityHandler::PackageRecord*> &records , Entity *obj, EntityReader &reader )
 	{
 	for( size_t i = 0; i < records.size(); ++i )
 		{
@@ -170,7 +186,7 @@ static bool entityRead( const std::vector<const EntityHandler::Record*> &records
 	return false;
 	}
 
-static bool entityValidate( const std::vector<const EntityHandler::Record*> &records , const Entity *obj, EntityValidator &validator )
+static bool entityValidate( const std::vector<const EntityHandler::PackageRecord*> &records , const Entity *obj, EntityValidator &validator )
 	{
 	for( size_t i = 0; i < records.size(); ++i )
 		{
@@ -188,7 +204,7 @@ void EntityHandler::InsertEntity( const entity_ref &ref, const std::shared_ptr<c
 	this->Entities.emplace( ref, entity );
 	}
 
-Status EntityHandler::Initialize( const std::string &path , const std::vector<const Record*> &records )
+Status EntityHandler::Initialize( const std::string &path , const std::vector<const PackageRecord*> &records )
 	{
 	if( !this->Path.empty() )
 		{
@@ -206,14 +222,14 @@ Status EntityHandler::Initialize( const std::string &path , const std::vector<co
 
 	// make sure it is a directory 
 	DWORD file_attributes = GetFileAttributesW( wpath.c_str() );
-	if( file_attributes != FILE_ATTRIBUTE_DIRECTORY )
+	if( (file_attributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY )
 		{
 		return Status::EParam; // invalid path
 		}
 
 	this->Path = wpath;
 
-	// copy the records
+	// copy the package records
 	this->Records = records;
 
 	return Status::Ok;
@@ -403,7 +419,7 @@ std::pair<entity_ref, Status> EntityHandler::WriteTask( EntityHandler *pThis, st
 		while( bytesWritten < totalBytesToWrite )
 			{
 			// check how much to write, capped at UINT_MAX
-			u64 bytesToWrite = min( totalBytesToWrite - bytesWritten, UINT_MAX );
+			u64 bytesToWrite = std::min<u64>( totalBytesToWrite - bytesWritten, UINT_MAX );
 
 			// read in bytes into the memory allocation
 			DWORD numBytesWritten = 0;

@@ -9,4 +9,3 @@ hlp.run_module('DataTypes')
 hlp.run_module('ValueTypes')
 hlp.run_module('DynamicTypes')
 
-import Testing 

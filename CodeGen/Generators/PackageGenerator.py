@@ -3,6 +3,9 @@
 
 import CodeGeneratorHelpers as hlp
 
+from ctypes import c_ulonglong 
+from ctypes import c_ubyte 
+
 def CreateItemHeader(item):
 	packageName = item.Package.Name
 
@@ -18,7 +21,7 @@ def CreateItemHeader(item):
 			lines.append(f'#include <{dep.PackageName}/{dep.Name}.h>')
 
 	lines.append('')
-	lines.append(f'#include <{packageName}/{packageName}.h>')
+	lines.append(f'#include "{packageName}.h"')
 
 	lines.append('')
 	lines.append(f'namespace {packageName}')
@@ -30,7 +33,7 @@ def CreateItemHeader(item):
 			lines.append(f'    class {dep.Name};')
 
 	if item.IsEntity:
-		lines.append(f'    class {item.Name} : public Entity')
+		lines.append(f'    class {item.Name} : public pds::Entity')
 	else:
 		lines.append(f'    class {item.Name}')
 	lines.append('        {')
@@ -100,14 +103,14 @@ def CreateItemHeader(item):
 	lines.append(f'            static void DeepCopy( {item.Name} &dest, const {item.Name} *source );')
 	lines.append(f'            static bool Equals( const {item.Name} *lvar, const {item.Name} *rvar );')
 	lines.append('')
-	lines.append(f'            static bool Write( const {item.Name} &obj, EntityWriter &writer );')
-	lines.append(f'            static bool Read( {item.Name} &obj, EntityReader &reader );')
+	lines.append(f'            static bool Write( const {item.Name} &obj, pds::EntityWriter &writer );')
+	lines.append(f'            static bool Read( {item.Name} &obj, pds::EntityReader &reader );')
 	lines.append('')
-	lines.append(f'            static bool Validate( const {item.Name} &obj, EntityValidator &validator );')
+	lines.append(f'            static bool Validate( const {item.Name} &obj, pds::EntityValidator &validator );')
 	lines.append('')
 	if item.IsEntity:
-		lines.append(f'            static const {item.Name} *EntitySafeCast( const Entity *srcEnt );')
-		lines.append(f'            static std::shared_ptr<const {item.Name}> EntitySafeCast( std::shared_ptr<const Entity> srcEnt );')
+		lines.append(f'            static const {item.Name} *EntitySafeCast( const pds::Entity *srcEnt );')
+		lines.append(f'            static std::shared_ptr<const {item.Name}> EntitySafeCast( std::shared_ptr<const pds::Entity> srcEnt );')
 		lines.append('')
 	lines.append('        };')
 	lines.append('')
@@ -137,7 +140,7 @@ def CreateItemHeader(item):
 
 	lines.append('    };')
 
-	hlp.write_lines_to_file(f"{item.Package.HeaderPath}/{item.Name}.h",lines)
+	hlp.write_lines_to_file(f"{item.Package.Path}/{item.Name}.h",lines)
 
 def ImplementClearCall(item,var):
 	lines = []
@@ -320,7 +323,7 @@ def CreateItemSource(item):
 	lines.append(f'#include <pds/EntityReader.h>')
 	lines.append(f'#include <pds/EntityValidator.h>')
 	lines.append('')
-	lines.append(f'#include <{packageName}/{item.Name}.h>')
+	lines.append(f'#include "{item.Name}.h"')
 		
 	# include dependences that were forward referenced in the header
 	for dep in item.Dependencies:
@@ -384,7 +387,7 @@ def CreateItemSource(item):
 	lines.append('')
 
 	# writer code
-	lines.append(f'    bool {item.Name}::MF::Write( const {item.Name} &obj, EntityWriter &writer )')
+	lines.append(f'    bool {item.Name}::MF::Write( const {item.Name} &obj, pds::EntityWriter &writer )')
 	lines.append('        {')
 	lines.append('        bool success = true;')
 	if vars_have_item:
@@ -397,7 +400,7 @@ def CreateItemSource(item):
 	lines.append('')
 	
 	# reader code
-	lines.append(f'    bool {item.Name}::MF::Read( {item.Name} &obj, EntityReader &reader )')
+	lines.append(f'    bool {item.Name}::MF::Read( {item.Name} &obj, pds::EntityReader &reader )')
 	lines.append('        {')
 	lines.append('        bool success = true;')
 	if vars_have_item:
@@ -410,7 +413,7 @@ def CreateItemSource(item):
 	lines.append('')
 	
 	# validator code
-	lines.append(f'    bool {item.Name}::MF::Validate( const {item.Name} &obj, EntityValidator &validator )')
+	lines.append(f'    bool {item.Name}::MF::Validate( const {item.Name} &obj, pds::EntityValidator &validator )')
 	lines.append('        {')
 	lines.append('        bool success = true;')
 	lines.append('')
@@ -425,7 +428,7 @@ def CreateItemSource(item):
 
 	# entity code
 	if item.IsEntity:
-		lines.append(f'    const {item.Name} *{item.Name}::MF::EntitySafeCast( const Entity *srcEnt )')
+		lines.append(f'    const {item.Name} *{item.Name}::MF::EntitySafeCast( const pds::Entity *srcEnt )')
 		lines.append('        {')
 		lines.append(f'        if( srcEnt && std::string(srcEnt->EntityTypeString()) == "{item.Name}" )')
 		lines.append('            {')
@@ -434,7 +437,7 @@ def CreateItemSource(item):
 		lines.append('        return nullptr;')
 		lines.append('        }')
 		lines.append('')
-		lines.append(f'    std::shared_ptr<const {item.Name}> {item.Name}::MF::EntitySafeCast( std::shared_ptr<const Entity> srcEnt )')
+		lines.append(f'    std::shared_ptr<const {item.Name}> {item.Name}::MF::EntitySafeCast( std::shared_ptr<const pds::Entity> srcEnt )')
 		lines.append('        {')
 		lines.append(f'        if( srcEnt && std::string(srcEnt->EntityTypeString()) == "{item.Name}" )')
 		lines.append('            {')
@@ -445,7 +448,202 @@ def CreateItemSource(item):
 		lines.append('')
 
 	lines.append('    };')
-	hlp.write_lines_to_file(f"{item.Package.SrcPath}/{item.Name}.cpp",lines)
+	hlp.write_lines_to_file(f"{item.Package.Path}/{item.Name}.inl",lines)
+
+
+# static and constant hash table for entity lookup, (must be larger than the number of entities to add)
+# Fowler–Noll–Vo FNV-1a hash function  https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+class EntityHashTable:
+	def hash_function( self , entity_name ):
+		hash = c_ulonglong(0xcbf29ce484222325)
+		for ch in entity_name:
+			hash = c_ulonglong(hash.value ^ c_ubyte(ord(ch)).value)
+			hash = c_ulonglong(hash.value * c_ulonglong(0x00000100000001B3).value)
+		return hash.value
+
+	def insert_into_table( self , entity_name ):
+		# use hash function to generate a good starting point
+		hash_pos = self.hash_function( entity_name ) % self.hash_table_size
+		# find first empty slot
+		while( self.hash_table[hash_pos] != None ):
+			hash_pos = hash_pos+1
+			if( hash_pos >= self.hash_table_size ):
+				hash_pos = 0
+		# fill it
+		self.hash_table[hash_pos] = entity_name
+
+	def __init__(self, items):
+		self.hash_table_size = 37 
+		self.hash_data_type_mult = 109
+		self.hash_container_type_mult = 991
+		self.hash_table = [None] * self.hash_table_size
+
+		# fill up hash table, only fill with entities
+		for item in items:
+			if item.IsEntity:
+				self.insert_into_table( item.Name );
+
+def CreatePackageHandler_inl( package ):
+	packageName = package.Name
+
+	lines = []
+	lines.extend( hlp.generate_header() )
+	lines.append('')
+	lines.append('#include <pds/pds.h>')
+	lines.append('#include <pds/Varying.h>')
+	lines.append('')
+
+	for item in package.Items:
+		if item.IsEntity:
+			lines.append(f'#include "{item.Name}.h"')
+
+	lines.append('')
+	lines.append(f'namespace {packageName}')
+	lines.append('    {')
+	lines.append('namespace entity_types')
+	lines.append('    {')
+	
+	lines.append('    // dynamic allocation functors for items')
+	lines.append('    class _entityTypeClass')
+	lines.append('        {')
+	lines.append('        public:')
+	lines.append('            virtual const char *EntityTypeString() const = 0;')
+	lines.append('            virtual std::shared_ptr<pds::Entity> New() const = 0;')
+	lines.append('            virtual void Clear( pds::Entity *obj ) const = 0;')
+	lines.append('            virtual bool Equals( const pds::Entity *lval , const pds::Entity *rval ) const = 0;')
+	lines.append('            virtual bool Write( const pds::Entity *obj, pds::EntityWriter &writer ) const = 0;')
+	lines.append('            virtual bool Read( pds::Entity *obj, pds::EntityReader &reader ) const = 0;')
+	lines.append('            virtual bool Validate( const pds::Entity *obj, pds::EntityValidator &validator ) const = 0;')
+	lines.append('        };')
+	lines.append('')
+
+	for item in package.Items:
+		if item.IsEntity:
+			lines.append(f'    // {item.Name}' )
+			lines.append(f'    static const class _et_{item.Name}_EntityType : public _entityTypeClass' )
+			lines.append(f'        {{' )
+			lines.append(f'        public:' )
+			lines.append(f'            virtual const char *EntityTypeString() const {{ return "{item.Name}"; }}' )
+			lines.append(f'            virtual std::shared_ptr<pds::Entity> New() const {{ return std::make_shared<{item.Name}>(); }}')
+			lines.append(f'            virtual void Clear( pds::Entity *obj ) const {{ {item.Name}::MF::Clear( *(({item.Name}*)obj) ); }}')
+			lines.append(f'            virtual bool Equals( const pds::Entity *lval , const pds::Entity *rval ) const {{ return {item.Name}::MF::Equals( (({item.Name}*)lval) , (({item.Name}*)rval) ); }}')
+			lines.append(f'            virtual bool Write( const pds::Entity *obj, pds::EntityWriter &writer ) const {{ return {item.Name}::MF::Write( *(({item.Name}*)obj) , writer ); }}')
+			lines.append(f'            virtual bool Read( pds::Entity *obj, pds::EntityReader &reader ) const {{ return {item.Name}::MF::Read( *(({item.Name}*)obj) , reader ); }}')
+			lines.append(f'            virtual bool Validate( const pds::Entity *obj, pds::EntityValidator &validator ) const {{ return {item.Name}::MF::Validate( *(({item.Name}*)obj) , validator ); }}')
+			lines.append(f'        }} _et_{item.Name}_EntityTypeObject;' )
+			lines.append('')
+
+	# allocate and print hash table
+	hash_table = EntityHashTable( package.Items )
+
+	# print it 
+	lines.append('    // Hash table with the type entity handler objects')
+	lines.append(f'    static const _entityTypeClass *_entityTypeClassHashTable[{hash_table.hash_table_size}] = ')
+	lines.append('        {')
+	for idx in range(hash_table.hash_table_size):
+		if hash_table.hash_table[idx] == None:
+			lines.append('        nullptr,')
+		else:
+			lines.append(f'        &_et_{hash_table.hash_table[idx]}_EntityTypeObject,')
+	lines.append('        };')
+	lines.append('')
+	lines.append('    // hash table lookup of entityType')
+	lines.append('    static const _entityTypeClass *_findEntityTypeClass( const char *typeNameString )')
+	lines.append('        {')
+	lines.append('        // calculate hash value using Fowler–Noll–Vo FNV-1a hash function')
+	lines.append('        u64 hash = 0xcbf29ce484222325;')
+	lines.append('        for( const char *chP = typeNameString ; *chP != \'\\0\' ; ++chP )')
+	lines.append('            {')
+	lines.append('            hash ^= (u8)(*chP);')
+	lines.append('            hash *= (u64)(0x00000100000001B3);')
+	lines.append('            }')
+	lines.append('')
+	lines.append('        // look for entry in table. ')
+	lines.append(f'        u64 hashValue = hash % {hash_table.hash_table_size};')
+	lines.append('        while( _entityTypeClassHashTable[hashValue] != nullptr )')
+	lines.append('            {')
+	lines.append('            if( strcmp( _entityTypeClassHashTable[hashValue]->EntityTypeString() , typeNameString ) == 0 )')
+	lines.append('                return _entityTypeClassHashTable[hashValue];')
+	lines.append('            ++hashValue;')
+	lines.append(f'            if(hashValue >= {hash_table.hash_table_size})')
+	lines.append('                hashValue = 0;')
+	lines.append('            }')
+	lines.append('')
+	lines.append('        // entity was not found (this should never happen unless testing)')
+	lines.append('        pdsErrorLog << "_findEntityTypeClass: Invalid entity parameter { " << typeNameString << " } " << pdsErrorLogEnd;')
+	lines.append('        return nullptr;')
+	lines.append('        }')
+	lines.append('')
+	
+	lines.append('\t};')
+	
+	lines.append("""
+	static const class CreatePackageHandler : public pds::EntityHandler::PackageRecord
+		{
+		public:
+			virtual std::shared_ptr<pds::Entity> New( const char *entityTypeString ) const
+				{
+				if( !entityTypeString )
+					{
+					pdsErrorLog << "Invalid parameter, data must be name of entity type" << pdsErrorLogEnd;
+					return nullptr;
+					}
+				const entity_types::_entityTypeClass *ta = entity_types::_findEntityTypeClass( entityTypeString );
+				if( !ta )
+					return nullptr;
+				return ta->New();
+				}
+		
+			virtual bool Write( const pds::Entity *obj, pds::EntityWriter &writer ) const
+				{
+				if( !obj )
+					{
+					pdsErrorLog << "Invalid parameter, data must be a pointer to allocated object" << pdsErrorLogEnd;
+					return false;
+					}
+				const entity_types::_entityTypeClass *ta = entity_types::_findEntityTypeClass( obj->EntityTypeString() );
+				if( !ta )
+					return false;
+				return ta->Write( obj , writer );
+				}
+		
+			virtual bool Read( pds::Entity *obj, pds::EntityReader &reader ) const
+				{
+				if( !obj )
+					{
+					pdsErrorLog << "Invalid parameter, data must be a pointer to allocated object" << pdsErrorLogEnd;
+					return false;
+					}
+				const entity_types::_entityTypeClass *ta = entity_types::_findEntityTypeClass( obj->EntityTypeString() );
+				if( !ta )
+					return false;
+				return ta->Read( obj , reader );
+				}
+		
+			virtual bool Validate( const pds::Entity *obj, pds::EntityValidator &validator ) const
+				{
+				if( !obj )
+					{
+					pdsErrorLog << "Invalid parameter, data must be a pointer to allocated object" << pdsErrorLogEnd;
+					return false;
+					}
+				const entity_types::_entityTypeClass *ta = entity_types::_findEntityTypeClass( obj->EntityTypeString() );
+				if( !ta )
+					return false;
+				return ta->Validate( obj , validator );
+				}
+				
+		} _createPackageHandlerObject;
+
+	const pds::EntityHandler::PackageRecord *GetPackageRecord() { return &_createPackageHandlerObject; }
+	""")
+
+	# end of namespace
+	lines.append('\t};')
+	hlp.write_lines_to_file(f"{package.Path}/{packageName}PackageHandler.inl",lines)
+
+
+from .DataTypes import ListPackageHeaderDefines
 
 # create a header for the package, which has all needed references and definitions
 def CreatePackageHeader( package ):
@@ -455,18 +653,43 @@ def CreatePackageHeader( package ):
 	lines.extend( hlp.generate_header() )
 	lines.append('')
 	lines.append(f'#include <pds/pds.h>')
+	lines.append(f'#include <pds/ValueTypes.h>')
 	lines.append('')
 		
 	lines.append('')
 	lines.append(f'namespace {packageName}')
-	lines.append('    {')
-	lines.append('    using Entity = pds::Entity;')
-	lines.append('    };')
+	lines.append('\t{')
+	lines.extend( ListPackageHeaderDefines() )
+	lines.append('')
+	lines.append('\tconst pds::EntityHandler::PackageRecord *GetPackageRecord();')
+	lines.append('\t};')
 
-	hlp.write_lines_to_file(f"{package.HeaderPath}/{packageName}.h",lines)
+	hlp.write_lines_to_file(f"{package.Path}/{packageName}.h",lines)
+
+def CreatePackageSourceFile( package ):
+	packageName = package.Name
+
+	lines = []
+	lines.extend( hlp.generate_header() )
+	lines.append('')
+	lines.append(f'#include <pds/pds.inl>')
+	lines.append('')
+	lines.append(f'#include "{packageName}.h"')
+	lines.append('')
+	for item in package.Items:
+		lines.append(f'#include "{item.Name}.h"')
+
+	for item in package.Items:
+		lines.append(f'#include "{item.Name}.inl"')
+
+	lines.append(f'#include "{packageName}PackageHandler.inl"')
+
+	hlp.write_lines_to_file(f"{package.Path}/{packageName}.cpp",lines)
 
 def run( package ):
 	CreatePackageHeader( package )
+	CreatePackageSourceFile( package )
+	CreatePackageHandler_inl( package )
 	for item in package.Items:
 		CreateItemHeader( item )
 		CreateItemSource( item )

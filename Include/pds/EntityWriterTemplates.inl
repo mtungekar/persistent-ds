@@ -9,7 +9,7 @@ namespace pds
 	{
 	// called to begin a large block
 	// returns the stream position of the start of the block, to be used when writing the size when ending the block
-	bool begin_write_large_block( MemoryWriteStream &dstream, ValueType VT, const char *key, const u8 key_size_in_bytes )
+	inline bool begin_write_large_block( MemoryWriteStream &dstream, ValueType VT, const char *key, const u8 key_size_in_bytes )
 		{
 		const u8 value_type = (u8)VT;
 		const u64 start_pos = dstream.GetPosition();
@@ -33,7 +33,7 @@ namespace pds
 
 	// ends the block
 	// writes the size of the block in the header of the block
-	bool end_write_large_block( MemoryWriteStream &dstream, u64 start_pos )
+	inline bool end_write_large_block( MemoryWriteStream &dstream, u64 start_pos )
 		{
 		const u64 end_pos = dstream.GetPosition();
 		const u64 block_size = end_pos - start_pos - 9; // total block size - ( sizeof( valuetype )=1 + sizeof( block_size_variable )=8 )
@@ -45,7 +45,7 @@ namespace pds
 
 	// template method that writes a small block of a specific ValueType VT to the stream. Since most value types 
 	// can have different bit depths, the second parameter I is the actual type of the data stored. The data can have more than one values of type I, the count is stored in IC.
-	template<ValueType VT, class T> bool write_single_value( MemoryWriteStream &dstream, const char *key, const u8 key_length, const T *data )
+	template<ValueType VT, class T> inline bool write_single_value( MemoryWriteStream &dstream, const char *key, const u8 key_length, const T *data )
 		{
 		static_assert((VT >= ValueType::VT_Bool) && (VT <= ValueType::VT_Hash), "Invalid type for general write_single_value template");
 
@@ -76,7 +76,7 @@ namespace pds
 		};
 
 	// specialization of write_single_value for bool values, which need conversion to u8
-	template<> bool write_single_value<ValueType::VT_Bool, bool>( MemoryWriteStream &dstream, const char *key, const u8 key_length, const bool *data )
+	template<> inline bool write_single_value<ValueType::VT_Bool, bool>( MemoryWriteStream &dstream, const char *key, const u8 key_length, const bool *data )
 		{
 		// if data is set, convert to an u8 value, and point at it
 		const u8 u8val = ( data ) ? ((u8)(*data)) : 0;
@@ -85,7 +85,7 @@ namespace pds
 		}
 
 	// specialization of write_single_value for strings
-	template<> bool write_single_value<ValueType::VT_String, std::string>( MemoryWriteStream &dstream, const char *key, const u8 key_size_in_bytes, const std::string *string_value )
+	template<> inline bool write_single_value<ValueType::VT_String, std::string>( MemoryWriteStream &dstream, const char *key, const u8 key_size_in_bytes, const std::string *string_value )
 		{
 		// record start position, we need this in the end block
 		const u64 start_pos = dstream.GetPosition();
@@ -145,7 +145,7 @@ namespace pds
 		}
 
 	// reads an array header and value size from the stream, and decodes into flags, then reads the index if one exists. 
-	bool write_array_metadata_and_index( MemoryWriteStream &dstream, size_t per_item_size, size_t item_count, const std::vector<i32> *index )
+	inline bool write_array_metadata_and_index( MemoryWriteStream &dstream, size_t per_item_size, size_t item_count, const std::vector<i32> *index )
 		{
 		static_assert(sizeof( u64 ) <= sizeof( size_t ), "Unsupported size_t, current code requires it to be at least 8 bytes in size, equal to u64");
 		pdsSanityCheckDebugMacro( per_item_size <= 0xff );
@@ -189,10 +189,8 @@ namespace pds
 		return true;
 		}
 
-
-
 	// write indexed array to stream
-	template<ValueType VT, class T> bool write_array( MemoryWriteStream &dstream, const char *key, const u8 key_size_in_bytes, const std::vector<T> *items, const std::vector<i32> *index )
+	template<ValueType VT, class T> inline bool write_array( MemoryWriteStream &dstream, const char *key, const u8 key_size_in_bytes, const std::vector<T> *items, const std::vector<i32> *index )
 		{
 		static_assert((VT >= ValueType::VT_Array_Bool) && (VT <= ValueType::VT_Array_Hash), "Invalid type for write_array");
 		static_assert(sizeof( data_type_information<T>::value_type ) <= 0xff, "Invalid value size, cannot exceed 255 bytes");
@@ -249,7 +247,7 @@ namespace pds
 		}
 
 	// specialization of write_array for bool arrays
-	template<> bool write_array<ValueType::VT_Array_Bool, bool>( MemoryWriteStream &dstream, const char *key, const u8 key_size_in_bytes, const std::vector<bool> *items, const std::vector<i32> *index )
+	template<> inline bool write_array<ValueType::VT_Array_Bool, bool>( MemoryWriteStream &dstream, const char *key, const u8 key_size_in_bytes, const std::vector<bool> *items, const std::vector<i32> *index )
 		{
 		// record start position, we need this in the end block
 		const u64 start_pos = dstream.GetPosition();
@@ -313,7 +311,7 @@ namespace pds
 		}
 
 	// specialization of write_array for string arrays
-	template<> bool write_array<ValueType::VT_Array_String, std::string>( MemoryWriteStream &dstream, const char *key, const u8 key_size_in_bytes, const std::vector<std::string> *items, const std::vector<i32> *index )
+	template<> inline bool write_array<ValueType::VT_Array_String, std::string>( MemoryWriteStream &dstream, const char *key, const u8 key_size_in_bytes, const std::vector<std::string> *items, const std::vector<i32> *index )
 		{
 		// record start position, we need this in the end block
 		const u64 start_pos = dstream.GetPosition();
@@ -379,6 +377,9 @@ namespace pds
 		// succeeded
 		return true;
 		}
+
+#ifdef PDS_MAIN_BUILD_FILE
+	EntityWriter::EntityWriter( MemoryWriteStream &_dstream ) : dstream( _dstream ) , start_position( _dstream.GetPosition() ) {}
 
 	// Build a section. 
 	EntityWriter *EntityWriter::BeginWriteSection( const char *key, const u8 key_length )
@@ -545,5 +546,7 @@ namespace pds
 			}
 		return this->EndWriteSectionsArray( subsection );
 		}
+
+#endif//PDS_MAIN_BUILD_FILE
 
 	};

@@ -1,7 +1,8 @@
 // pds - Persistent data structure framework, Copyright (c) 2022 Ulrik Lindahl
 // Licensed under the MIT license https://github.com/Cooolrik/pds/blob/main/LICENSE
+#pragma once
 
-#include <pds/SHA256.h>
+#include "SHA256.h"
 
 // directly include librock_sha256.c from the Dependencies folder
 #include "../Dependencies/librock_sha256/librock_sha256.c"

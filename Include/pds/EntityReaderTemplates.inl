@@ -22,7 +22,7 @@ namespace pds
 	// read the header of a large block
 	// returns the stream position of the expected end of the block, to validate the read position
 	// a stream position of 0 is not possible, and indicates error
-	u64 begin_read_large_block( MemoryReadStream &sstream, ValueType VT, const char *key, const u8 key_size_in_bytes )
+	inline u64 begin_read_large_block( MemoryReadStream &sstream, ValueType VT, const char *key, const u8 key_size_in_bytes )
 		{
 		const u64 start_pos = sstream.GetPosition();
 		pdsSanityCheckDebugMacro( key_size_in_bytes <= EntityMaxKeyLength ); // max key length
@@ -71,7 +71,7 @@ namespace pds
 		}
 
 	// ends the block, write the size of the block
-	bool end_read_large_block( MemoryReadStream &sstream, u64 expected_end_pos )
+	inline bool end_read_large_block( MemoryReadStream &sstream, u64 expected_end_pos )
 		{
 		const u64 end_pos = sstream.GetPosition();
 		return (end_pos == expected_end_pos); // make sure we have read in the full block
@@ -79,7 +79,7 @@ namespace pds
 
 	// template method that Reads a small block of a specific ValueType VT to the stream. Since most value types 
 	// can have different bit depths, the second parameter I is the actual type of the data stored. The data can have more than one values of type I, the count is stored in IC.
-	template<ValueType VT, class T> reader_status read_single_item( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, T *dest_data )
+	template<ValueType VT, class T> inline reader_status read_single_item( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, T *dest_data )
 		{
 		static_assert((VT >= ValueType::VT_Bool) && (VT <= ValueType::VT_Hash), "Invalid type for generic template of read_single_item");
 
@@ -169,7 +169,7 @@ namespace pds
 		};
 
 	// special implementation of read_small_block for bool values, which reads a u8 and converts to bool
-	template<> reader_status read_single_item<ValueType::VT_Bool, bool>( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, bool *dest_data )
+	template<> inline reader_status read_single_item<ValueType::VT_Bool, bool>( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, bool *dest_data )
 		{
 		u8 u8val;
 		reader_status status = read_single_item<ValueType::VT_Bool, u8>( sstream, key, key_size_in_bytes, empty_value_is_allowed, &u8val );
@@ -182,7 +182,7 @@ namespace pds
 
 	// template method that Reads a small block of a specific ValueType VT to the stream. Since most value types 
 	// can have different bit depths, the second parameter I is the actual type of the data stored. The data can have more than one values of type I, the count is stored in IC.
-	template<> reader_status read_single_item<ValueType::VT_String, string>( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, string *dest_data )
+	template<> inline reader_status read_single_item<ValueType::VT_String, string>( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, string *dest_data )
 		{
 		static_assert(sizeof( u64 ) == sizeof( size_t ), "Unsupported size_t, current code requires it to be 8 bytes in size, equal to u64");
 
@@ -256,7 +256,7 @@ namespace pds
 		return reader_status::success;
 		}
 
-	reader_status end_read_empty_large_block( MemoryReadStream &sstream, const char *key, const bool empty_value_is_allowed, const u64 expected_end_position )
+	inline reader_status end_read_empty_large_block( MemoryReadStream &sstream, const char *key, const bool empty_value_is_allowed, const u64 expected_end_position )
 		{
 		// check that empty value this is allowed
 		if( empty_value_is_allowed )
@@ -280,7 +280,7 @@ namespace pds
 		}
 
 	// reads an array header and value size from the stream, and decodes into flags, then reads the index if one exists. 
-	bool read_array_metadata_and_index( MemoryReadStream &sstream, size_t &out_per_item_size, size_t &out_item_count, const u64 block_end_position , std::vector<i32> *dest_index )
+	inline bool read_array_metadata_and_index( MemoryReadStream &sstream, size_t &out_per_item_size, size_t &out_item_count, const u64 block_end_position , std::vector<i32> *dest_index )
 		{
 		static_assert(sizeof( u64 ) <= sizeof( size_t ), "Unsupported size_t, current code requires it to be at least 8 bytes in size, equal to u64");
 
@@ -351,7 +351,7 @@ namespace pds
 		return true;
 		}
 
-	template<ValueType VT, class T> reader_status read_array( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, std::vector<T> *dest_items, std::vector<i32> *dest_index )
+	template<ValueType VT, class T> inline reader_status read_array( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, std::vector<T> *dest_items, std::vector<i32> *dest_index )
 		{
 		static_assert((VT >= ValueType::VT_Array_Bool) && (VT <= ValueType::VT_Array_Hash), "Invalid type for generic read_array template");
 		static_assert(sizeof( u64 ) >= sizeof( size_t ), "Unsupported size_t, current code requires it to be at max 8 bytes in size, equal to u64");
@@ -418,7 +418,7 @@ namespace pds
 		}
 
 	// read_array implementation for bool arrays (which need specific packing)
-	template <> reader_status read_array<ValueType::VT_Array_Bool, bool>( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, std::vector<bool> *dest_items, std::vector<i32> *dest_index )
+	template <> inline reader_status read_array<ValueType::VT_Array_Bool, bool>( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, std::vector<bool> *dest_items, std::vector<i32> *dest_index )
 		{
 		pdsSanityCheckCoreDebugMacro( dest_items );
 
@@ -479,7 +479,7 @@ namespace pds
 		return reader_status::success;
 		}
 
-	template<> reader_status read_array<ValueType::VT_Array_String, string>( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, std::vector<string> *dest_items, std::vector<i32> *dest_index )
+	template<> inline reader_status read_array<ValueType::VT_Array_String, string>( MemoryReadStream &sstream, const char *key, const u8 key_size_in_bytes, const bool empty_value_is_allowed, std::vector<string> *dest_items, std::vector<i32> *dest_index )
 		{
 		static_assert(sizeof( u64 ) == sizeof( size_t ), "Unsupported size_t, current code requires it to be 8 bytes in size, equal to u64");
 
@@ -554,6 +554,15 @@ namespace pds
 			}
 
 		return reader_status::success;
+		}
+
+#ifdef PDS_MAIN_BUILD_FILE
+	EntityReader::EntityReader( MemoryReadStream &_sstream ) : sstream( _sstream ) , end_position( _sstream.GetSize() )
+		{
+		}
+
+	EntityReader::EntityReader( MemoryReadStream &_sstream , const u64 _end_position ) : sstream( _sstream ) , end_position( _end_position )
+		{
 		}
 
 	// Read a section. 
@@ -730,5 +739,7 @@ namespace pds
 		this->active_subsection_end_pos = 0;
 		return true;
 		}
+
+#endif//PDS_MAIN_BUILD_FILE
 
 	};

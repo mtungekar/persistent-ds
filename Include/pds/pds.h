@@ -260,7 +260,7 @@ namespace pds
 	class EntityHandler
 		{
 		public:
-			class Record
+			class PackageRecord
 				{
 				public:
 					// create a new writable entity of the named type
@@ -281,7 +281,7 @@ namespace pds
 
 			std::unordered_map<entity_ref, std::shared_ptr<const Entity>> Entities;
 			ctle::readers_writer_lock EntitiesLock;
-			std::vector<const Record*> Records;
+			std::vector<const PackageRecord*> Records;
 
 			void InsertEntity( const entity_ref &ref , const std::shared_ptr<const Entity> &entity );
 
@@ -289,7 +289,7 @@ namespace pds
 			static std::pair<entity_ref, Status> WriteTask( EntityHandler *pThis, std::shared_ptr<const Entity> entity );
 
 		public:
-			Status Initialize( const std::string &path , const std::vector<const Record*> &records );
+			Status Initialize( const std::string &path , const std::vector<const PackageRecord*> &records );
 
 			// Asks the handler to load an entity and insert into the Entities map. 
 			std::future<Status> LoadEntityAsync( const entity_ref &ref );

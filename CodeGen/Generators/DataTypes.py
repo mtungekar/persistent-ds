@@ -369,6 +369,92 @@ def DataValuePointers_h():
 	lines.append('    };')
 	hlp.write_lines_to_file("../Include/pds/DataValuePointers.h",lines)
 
+# used by CreatePackageHeader to list all needed defines in pds
+def ListPackageHeaderDefines():
+	lines = []
+
+	# typedef base integer types
+	lines.append(f"\t// scalar types")
+	for bit_size in int_bit_range:
+		lines.append(f"\tusing pds::i{bit_size};")
+	for bit_size in int_bit_range:
+		lines.append(f"\tusing pds::u{bit_size};")
+	lines.append('')
+
+	lines.append(f"\t// ids, hashes and strings")
+	lines.append(f"\tusing pds::uuid;")
+	lines.append(f"\tusing pds::hash;")
+	lines.append('\tusing std::string;')
+	lines.append('')
+
+	lines.append(f"\t// container types")
+	lines.append('\tusing std::vector;')
+	lines.append('\tusing ctle::idx_vector;')
+	lines.append('\tusing ctle::optional_idx_vector;')
+	lines.append('\tusing ctle::optional_value;')
+	lines.append('\tusing ctle::optional_vector;')
+	lines.append('')
+
+	# typedef vector types
+	lines.append(f"\t// vector types")
+	for bit_size in int_bit_range:
+		for vec_dim in vector_dimension_range:
+			lines.append(f"\tusing pds::i{bit_size}vec{vec_dim};")
+	lines.append('')
+	for bit_size in int_bit_range:
+		for vec_dim in vector_dimension_range:
+			lines.append(f"\tusing pds::u{bit_size}vec{vec_dim};")
+	lines.append('')
+	for vec_dim in vector_dimension_range:
+		lines.append(f"\tusing pds::fvec{vec_dim};")
+	for vec_dim in vector_dimension_range:
+		lines.append(f"\tusing pds::dvec{vec_dim};")
+	lines.append('')
+	
+	# typedef matrix types
+	lines.append(f"\t// matrix types")
+	for vec_dim in vector_dimension_range:
+		lines.append(f"\tusing pds::fmat{vec_dim};")
+	for vec_dim in vector_dimension_range:
+		lines.append(f"\tusing pds::dmat{vec_dim};")
+	lines.append('')
+
+	# typedef quaternions
+	lines.append(f"\t// quaternion types")
+	lines.append(f"\tusing pds::fquat;")
+	lines.append(f"\tusing pds::dquat;")
+	lines.append('')
+
+	# typedef standard types
+	lines.append(f"\t// standard types from glm")
+	for vec_dim in vector_dimension_range:
+		lines.append(f"\tusing pds::ivec{vec_dim};")
+	for vec_dim in vector_dimension_range:
+		lines.append(f"\tusing pds::uvec{vec_dim};")
+	for vec_dim in vector_dimension_range:
+		lines.append(f"\tusing pds::vec{vec_dim};")
+	for vec_dim in vector_dimension_range:
+		lines.append(f"\tusing pds::mat{vec_dim};")
+	lines.append('')
+
+	# inline entity_ref and item_ref
+	lines.append(f"\tusing pds::entity_ref;")
+	lines.append(f"\tusing pds::item_ref;")
+
+	# enum of all data types
+	lines.append('\t// value type index enums')
+	lines.append('\tusing pds::data_type_index;')
+	lines.append('')
+
+	# type information on all types
+	lines.append('\t// type information templates')
+	lines.append('\ttemplate <class _Ty> using data_type_information = pds::data_type_information<_Ty>;')
+	lines.append('\ttemplate <class _Ty> using combined_type_information = pds::combined_type_information<_Ty>;')
+	
+	# might not need, wait with defining this one
+	#lines.append('\ttemplate <class _Ty> using clear_combined_type = pds::clear_combined_type<_Ty>;')
+	return lines
+
 def run():
 	DataTypes_h()
 	DataTypes_inl()

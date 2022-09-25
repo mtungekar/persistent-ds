@@ -91,13 +91,6 @@ def EntityReader_inl():
 	lines.append('')
 	lines.append('namespace pds')
 	lines.append('	{')
-	lines.append('	EntityReader::EntityReader( MemoryReadStream &_sstream ) : sstream( _sstream ) , end_position( _sstream.GetSize() )')
-	lines.append('		{')
-	lines.append('		}')
-	lines.append('')
-	lines.append('	EntityReader::EntityReader( MemoryReadStream &_sstream , const u64 _end_position ) : sstream( _sstream ) , end_position( _end_position )')
-	lines.append('		{')
-	lines.append('		}')
 	lines.append('')
 
 	# print the base types
@@ -112,7 +105,7 @@ def EntityReader_inl():
 			if type_impl.overrides_type:
 
 				lines.append(f'	// {implementing_type}: using {item_type} to read')
-				lines.append(f'	template <> bool EntityReader::Read<{implementing_type}>( const char *key, const u8 key_length, {implementing_type} &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<{implementing_type}>( const char *key, const u8 key_length, {implementing_type} &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		{item_type} tmp_variable;')
 				lines.append(f'		if( !this->Read<{item_type}>( key, key_length , tmp_variable ) )')
@@ -125,7 +118,7 @@ def EntityReader_inl():
 				lines.append(f'')
 
 				lines.append(f'	// {implementing_type}: using optional_value<{item_type}> to read' )
-				lines.append(f'	template <> bool EntityReader::Read<optional_value<{implementing_type}>>( const char *key, const u8 key_length, optional_value<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<optional_value<{implementing_type}>>( const char *key, const u8 key_length, optional_value<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		optional_value<{item_type}> tmp_variable;')
 				lines.append(f'		if( !this->Read<optional_value<{item_type}>>( key, key_length , tmp_variable ) )')
@@ -141,7 +134,7 @@ def EntityReader_inl():
 				lines.append(f'')
 				
 				lines.append(f'	// {implementing_type}: using std::vector<{item_type}> to read' )
-				lines.append(f'	template <> bool EntityReader::Read<std::vector<{implementing_type}>>( const char *key, const u8 key_length, std::vector<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<std::vector<{implementing_type}>>( const char *key, const u8 key_length, std::vector<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		std::vector<{item_type}> tmp_variable;')
 				lines.append(f'		if( !this->Read<std::vector<{item_type}>>( key, key_length , tmp_variable ) )')
@@ -157,7 +150,7 @@ def EntityReader_inl():
 				lines.append(f'')
 				
 				lines.append(f'	//  {implementing_type}: optional_vector<{item_type}> to read' )
-				lines.append(f'	template <> bool EntityReader::Read<optional_vector<{implementing_type}>>( const char *key, const u8 key_length, optional_vector<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<optional_vector<{implementing_type}>>( const char *key, const u8 key_length, optional_vector<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		optional_vector<{item_type}> tmp_variable;')
 				lines.append(f'		if( !this->Read<optional_vector<{item_type}>>( key, key_length , tmp_variable ) )')
@@ -182,7 +175,7 @@ def EntityReader_inl():
 				lines.append(f'')
 				
 				lines.append(f'	// {implementing_type}: using idx_vector<{item_type}> to read' )
-				lines.append(f'	template <> bool EntityReader::Read<idx_vector<{implementing_type}>>( const char *key, const u8 key_length, idx_vector<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<idx_vector<{implementing_type}>>( const char *key, const u8 key_length, idx_vector<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		idx_vector<{item_type}> tmp_variable;')
 				lines.append(f'		if( !this->Read<idx_vector<{item_type}>>( key, key_length , tmp_variable ) )')
@@ -201,7 +194,7 @@ def EntityReader_inl():
 				lines.append(f'')
 				
 				lines.append(f'	//  {implementing_type}: optional_idx_vector<{item_type}> to read' )
-				lines.append(f'	template <> bool EntityReader::Read<optional_idx_vector<{implementing_type}>>( const char *key, const u8 key_length, optional_idx_vector<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<optional_idx_vector<{implementing_type}>>( const char *key, const u8 key_length, optional_idx_vector<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		optional_idx_vector<{item_type}> tmp_variable;')
 				lines.append(f'		if( !this->Read<optional_idx_vector<{item_type}>>( key, key_length , tmp_variable ) )')
@@ -230,7 +223,7 @@ def EntityReader_inl():
 
 			else:
 				lines.append(f'	// {type_name}: {implementing_type}')
-				lines.append(f'	template <> bool EntityReader::Read<{implementing_type}>( const char *key, const u8 key_length, {implementing_type} &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<{implementing_type}>( const char *key, const u8 key_length, {implementing_type} &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		reader_status status = read_single_item<ValueType::{type_name},{implementing_type}>(this->sstream, key, key_length, false, &(dest_variable) );')
 				lines.append(f'		return status != reader_status::fail;')
@@ -238,7 +231,7 @@ def EntityReader_inl():
 				lines.append(f'')
 
 				lines.append(f'	// {type_name}: optional_value<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityReader::Read<optional_value<{implementing_type}>>( const char *key, const u8 key_length, optional_value<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<optional_value<{implementing_type}>>( const char *key, const u8 key_length, optional_value<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		dest_variable.set();')
 				lines.append(f'		reader_status status = read_single_item<ValueType::{type_name},{implementing_type}>(this->sstream, key, key_length, true, &(dest_variable.value()) );')
@@ -249,7 +242,7 @@ def EntityReader_inl():
 				lines.append(f'')
 
 				lines.append(f'	// {type_name}: std::vector<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityReader::Read<std::vector<{implementing_type}>>( const char *key, const u8 key_length, std::vector<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<std::vector<{implementing_type}>>( const char *key, const u8 key_length, std::vector<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		reader_status status = read_array<ValueType::{array_type_name},{implementing_type}>(this->sstream, key, key_length, false, &(dest_variable), nullptr );')
 				lines.append(f'		return status != reader_status::fail;')
@@ -257,7 +250,7 @@ def EntityReader_inl():
 				lines.append(f'')
 
 				lines.append(f'	// {type_name}: optional_vector<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityReader::Read<optional_vector<{implementing_type}>>( const char *key, const u8 key_length, optional_vector<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<optional_vector<{implementing_type}>>( const char *key, const u8 key_length, optional_vector<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		dest_variable.set();')
 				lines.append(f'		reader_status status = read_array<ValueType::{array_type_name},{implementing_type}>(this->sstream, key, key_length, true, &(dest_variable.values()), nullptr );')
@@ -268,7 +261,7 @@ def EntityReader_inl():
 				lines.append(f'')
 
 				lines.append(f'	// {type_name}: idx_vector<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityReader::Read<idx_vector<{implementing_type}>>( const char *key, const u8 key_length, idx_vector<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<idx_vector<{implementing_type}>>( const char *key, const u8 key_length, idx_vector<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		reader_status status = read_array<ValueType::{array_type_name},{implementing_type}>(this->sstream, key, key_length, false, &(dest_variable.values()), &(dest_variable.index()) );')
 				lines.append(f'		return status != reader_status::fail;')
@@ -276,7 +269,7 @@ def EntityReader_inl():
 				lines.append(f'')
 
 				lines.append(f'	// {type_name}: optional_idx_vector<{implementing_type}>' )
-				lines.append(f'	template <> bool EntityReader::Read<optional_idx_vector<{implementing_type}>>( const char *key, const u8 key_length, optional_idx_vector<{implementing_type}> &dest_variable )')
+				lines.append(f'	template <> inline bool EntityReader::Read<optional_idx_vector<{implementing_type}>>( const char *key, const u8 key_length, optional_idx_vector<{implementing_type}> &dest_variable )')
 				lines.append(f'		{{')
 				lines.append(f'		dest_variable.set();')
 				lines.append(f'		reader_status status = read_array<ValueType::{array_type_name},{implementing_type}>(this->sstream, key, key_length, true, &(dest_variable.values()), &(dest_variable.index()) );')

@@ -5,14 +5,15 @@ import CodeGeneratorHelpers as hlp
 import sys
 
 class Package:
-	def __init__(self, name, headerPath, srcPath, items):
+    # name - name of package (including any versioning)
+    # parentPath - name of the folder where the package will be placed
+	def __init__(self, name, path, items):
 		self.Name = name
 		self.Items = items
 		for item in self.Items:
 			item.Package = self
-		self.HeaderPath = headerPath
-		self.SrcPath = srcPath
-
+		self.Path = path
+		
 class Item:
 	def __init__(self, name, variables, dependencies = [], templates = [], validations = [] ):
 		self.Name = name
