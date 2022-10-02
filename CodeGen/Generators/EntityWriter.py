@@ -24,7 +24,7 @@ def EntityWriter_h():
 	lines.append('            std::unique_ptr<EntityWriter> active_subsection;')
 	lines.append('')
 	lines.append('            size_t active_array_size = 0;')
-	lines.append('            size_t active_array_index = ~0;')
+	lines.append('            size_t active_array_index = size_t(~0);')
 	lines.append('            u64 active_array_index_start_position = 0;')
 	lines.append('')
 	lines.append('        public:')

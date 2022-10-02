@@ -1,7 +1,23 @@
 cmake_minimum_required(VERSION 3.21)
 
 project( persistent-ds )
+
+# lots of warnings and all warnings as errors
+if (MSVC)
+    add_compile_options(/W4 /WX)
+else()
+    # lots of warnings and all warnings as errors
+    add_compile_options(-Wall -Wextra -pedantic -Werror)
+endif()
+
+# big object files
+if (MSVC)
+  add_compile_options(/bigobj)
+else ()
+  add_compile_options(-Wa,-mbig-obj)
+endif ()
 			
+# if this is the main build of persistent-ds, build the testing code
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)			
 				
 	# dowload gtest
@@ -33,6 +49,14 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 
 	# Tests run unit tests and other specific tests
 	add_executable( Tests
+					./Tests/DirectedGraphTests.cpp
+					./Tests/DynamicTypesTests.cpp
+					./Tests/EntityReaderRandomTests.cpp
+					./Tests/EntityReadWriteTests.cpp
+					./Tests/EntityTests.cpp
+					./Tests/ItemTableTests.cpp
+					./Tests/ReadWriteTests.cpp
+					./Tests/SectionHierarchyReadWriteTests.cpp
 					./Tests/Tests.cpp 
 					./Tests/TypeTests.cpp 
 					./Tests/TestHelpers/random_vals.cpp 

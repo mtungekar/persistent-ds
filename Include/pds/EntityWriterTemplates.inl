@@ -462,7 +462,7 @@ namespace pds
 
 		// reset the size and write index in the array
 		this->active_array_size = array_size;
-		this->active_array_index = ~0;
+		this->active_array_index = size_t(~0);
 		this->active_array_index_start_position = 0;
 		return this->active_subsection.get();
 		}
@@ -532,14 +532,14 @@ namespace pds
 		// release active subsection writer
 		this->active_subsection.reset();
 		this->active_array_size = 0;
-		this->active_array_index = ~0;
+		this->active_array_index = size_t(~0);
 		this->active_array_index_start_position = 0;
 		return true;
 		}
 
 	bool EntityWriter::WriteNullSectionsArray( const char *key, const u8 key_length )
 		{
-		EntityWriter *subsection = this->BeginWriteSectionsArray( key, key_length, ~0, nullptr );
+		EntityWriter *subsection = this->BeginWriteSectionsArray( key, key_length, size_t(~0), nullptr );
 		if( !subsection )
 			{
 			return false;

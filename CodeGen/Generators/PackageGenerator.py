@@ -418,13 +418,26 @@ def CreateItemSource(item):
 	# validator code
 	lines.append(f'    bool {item.Name}::MF::Validate( const {item.Name} &obj, pds::EntityValidator &validator )')
 	lines.append('        {')
-	lines.append('        bool success = true;')
-	lines.append('')
+
+	# setup validation lines first, and see if there are any lines generated
+	validation_lines = []
 	for var in item.Variables:
-		lines.extend(ImplementVariableValidatorCall(item,var))
+		validation_lines.extend(ImplementVariableValidatorCall(item,var))
 	for validation in item.Validations:
-		lines.extend( validation.GenerateValidationCode(item,'        ') )
+		validation_lines.extend( validation.GenerateValidationCode(item,'        ') )
+		validation_lines.append('')
+
+	# if we have validation lines, setup the support code
+	if len(validation_lines) > 0:
+		lines.append('        bool success = {};')
 		lines.append('')
+		lines.extend( validation_lines )
+		lines.append('')
+	else:
+		lines.append('        // no validation, just reference the objects to silence warnings, and return')
+		lines.append('        obj;')
+		lines.append('        validator;')
+
 	lines.append('        return true;')
 	lines.append('        }')
 	lines.append('')

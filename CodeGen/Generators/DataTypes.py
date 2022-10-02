@@ -40,8 +40,10 @@ def DataTypes_h():
 	lines.append('')
 	lines.append('#endif//PDS_SKIP_UUID_AND_HASH')
 	lines.append('')
+
 	lines.append('#include <glm/fwd.hpp>')
 	lines.append('')
+
 	lines.append('namespace pds')
 	lines.append('    {')
 
@@ -83,7 +85,7 @@ def DataTypes_h():
 	lines.append('')
 	lines.append('\tconstexpr uuid uuid_zero = {0,0,0,{0,0,0,0,0,0,0,0}};')
 	lines.append('\tconstexpr uuid uuid_inf = {0,0,0,{0,0,0,0,0,0,0,0}};')
-	lines.append('\tconstexpr uuid uuid_sup = {~0Ui32,~0Ui16,~0Ui16,{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff}};')
+	lines.append('\tconstexpr uuid uuid_sup = {0xffffffff,0xffff,0xffff,{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff}};')
 	lines.append('')
 	lines.append('\tconstexpr hash hash_zero = {0,0,0,0};')
 	lines.append('\tconstexpr hash hash_inf = {0,0,0,0};')
@@ -303,6 +305,10 @@ def DataValuePointers_h():
 	lines.append('')
 	lines.append('#include <pds/pds.h>')
 	lines.append('')
+	lines.append('// include glm references, silence warnings we can\'t control')
+	lines.append('#pragma warning( push )')
+	lines.append('#pragma warning( disable : 4201 )')
+	lines.append('')
 	lines.append('#include <glm/gtc/type_ptr.hpp>')
 	lines.append('')
 	lines.append('namespace pds')
@@ -367,6 +373,11 @@ def DataValuePointers_h():
 
 	# end of namespace
 	lines.append('    };')
+
+	# reenable warning
+	lines.append('// re-enalbe the warnings')
+	lines.append('#pragma warning( pop )')
+
 	hlp.write_lines_to_file("../Include/pds/DataValuePointers.h",lines)
 
 # used by CreatePackageHeader to list all needed defines in pds

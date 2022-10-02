@@ -3,6 +3,7 @@
 
 #include "Tests.h"
 
+#include <pds/SHA256.h>
 TEST( TypeTests , StandardTypes )
 	{
 	EXPECT_EQ(sizeof(u8) , 1);

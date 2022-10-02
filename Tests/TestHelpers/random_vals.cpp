@@ -1,7 +1,11 @@
 #include "random_vals.h"
 
+// include glm,  silence warnings we can't control
+#pragma warning( push )
+#pragma warning( disable : 4201 )
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#pragma warning( pop )
 
 template <> bool random_value<bool>() { return (bool)(rand() & 0x1); } 
 

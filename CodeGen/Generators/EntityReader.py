@@ -23,7 +23,7 @@ def EntityReader_h():
 	lines.append('')
 	lines.append('            std::unique_ptr<EntityReader> active_subsection;')
 	lines.append('            size_t active_subsection_array_size = 0;')
-	lines.append('            size_t active_subsection_index = ~0;')
+	lines.append('            size_t active_subsection_index = size_t(~0);')
 	lines.append('            u64 active_subsection_end_pos = 0;')
 	lines.append('')
 	lines.append('        public:')

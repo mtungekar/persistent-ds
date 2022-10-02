@@ -203,7 +203,6 @@ namespace pds
 			static bool Read( _MgmCl &obj , EntityReader &reader )
 				{
 				size_t map_size = {};
-				bool success = {};
 				typename _MgmCl::iterator it = {};
 
 				// read the roots 

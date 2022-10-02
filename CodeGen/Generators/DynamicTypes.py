@@ -43,9 +43,8 @@ def DynamicTypes_inl():
 	lines.append('#include <pds/EntityWriter.h>')
 	lines.append('#include <pds/EntityReader.h>')
 	lines.append('#include <pds/DynamicTypes.h>')
-	lines.append('#include <pds/ValueTypes.h>')
 	lines.append('')
-	lines.append('#include <glm/gtc/type_ptr.hpp>')
+	lines.append('#include <pds/ValueTypes.inl>')
 	lines.append('')
 	lines.append('namespace pds')
 	lines.append('    {')
@@ -58,13 +57,6 @@ def DynamicTypes_inl():
 	lines.append('        bool operator==(const type_combo& other) const { return other.data_type == this->data_type && other.container_type == this->container_type; }')
 	lines.append('        };')
 	lines.append('')
-	## print all base type combos for the template specializations
-	#method_line_list = [ 
-	#	'    template <> type_combo get_type_of<{base_type_combo}>() noexcept {{ return {{ data_type_index::dt_{implementing_type} , container_type_index::ct_{container_type} }}; }}' ,
-	#	]
-	#lines.append('    // template implementations')
-	#lines.extend( hlp.generate_lines_for_all_basetype_combos( method_line_list ) )
-	#lines.append('')
 	
 	lines.append('    // dynamic allocation functors for items')
 	lines.append('    class _dynamicTypeClass')
@@ -228,86 +220,78 @@ def DynamicTypes_inl():
 	lines.append('    };')
 	hlp.write_lines_to_file("../Include/pds/DynamicTypes.inl",lines)
 	
+
+
 def DynamicTypesTests_cpp():
 	lines = []
 	lines.extend( hlp.generate_header() )
+	lines.append('#include "Tests.h"')
+	lines.append('#include <pds/DynamicTypes.inl>')
+	lines.append('#include <pds/EntityWriter.inl>')
+	lines.append('#include <pds/EntityReader.inl>')
 	lines.append('')
-	lines.append('')
-	lines.append('#include "pch.h"')
-	lines.append('#include "CppUnitTest.h"')
-	lines.append('')
-	lines.append('using namespace Microsoft::VisualStudio::CppUnitTestFramework;')
-	lines.append('')
-	lines.append('namespace TypeTests')
+	lines.append('template<class _Ty> void DynamicValueTester()')
 	lines.append('    {')
-	lines.append('    TEST_CLASS(DynamicTypesTests)')
-	lines.append('        {')
-	lines.append('        STANDARD_TEST_INIT()')
-	lines.append('')
-
-	lines.append('        template<class _Ty> void DynamicValueTester()')
-	lines.append('            {')
-	lines.append('            constexpr pds::data_type_index type_index = pds::data_type_information<_Ty>::type_index;')
-	lines.append('            void *dataA = {};')
-	lines.append('            void *dataB = {};')
-	lines.append('            bool ret = {};')
+	lines.append('    constexpr pds::data_type_index type_index = pds::data_type_information<_Ty>::type_index;')
+	lines.append('    void *dataA = {};')
+	lines.append('    void *dataB = {};')
+	lines.append('    bool ret = {};')
 	lines.append('')
 
 	for cont in hlp.container_types:
-		lines.append(f'            // test container type: {cont.implementing_type} ')
-		lines.append(f'            constexpr pds::container_type_index ct_{cont.implementing_type} = container_type_index::ct_{cont.implementing_type};')
+		lines.append(f'    // test container type: {cont.implementing_type} ')
+		lines.append(f'    constexpr pds::container_type_index ct_{cont.implementing_type} = container_type_index::ct_{cont.implementing_type};')
 		lines.append('')
-		lines.append('            // create objects of the type, one dynamically typed in the heap and one statically typed on the stack')
-		lines.append(f'            std::tie(dataA,ret) = pds::dynamic_types::new_type( type_index , ct_{cont.implementing_type} );')
-		lines.append('            Assert::IsTrue( ret );')
+		lines.append('    // create objects of the type, one dynamically typed in the heap and one statically typed on the stack')
+		lines.append(f'    std::tie(dataA,ret) = pds::dynamic_types::new_type( type_index , ct_{cont.implementing_type} );')
+		lines.append('    EXPECT_TRUE( ret );')
 		if cont.is_template:
-			lines.append(f'            pds::{cont.implementing_type}<_Ty> ct_{cont.implementing_type}_valueB;')
+			lines.append(f'    pds::{cont.implementing_type}<_Ty> ct_{cont.implementing_type}_valueB;')
 		else:
-			lines.append(f'            _Ty ct_{cont.implementing_type}_valueB = pds::data_type_information<_Ty>::zero;')
+			lines.append(f'    _Ty ct_{cont.implementing_type}_valueB = pds::data_type_information<_Ty>::zero;')
 
-		lines.append(f'            dataB = &ct_{cont.implementing_type}_valueB;')
+		lines.append(f'    dataB = &ct_{cont.implementing_type}_valueB;')
 		lines.append('')
-		lines.append('            // clear A, make sure they match')
-		lines.append(f'            Assert::IsTrue( pds::dynamic_types::clear( type_index , ct_{cont.implementing_type} , dataA ) );')
-		lines.append(f'            Assert::IsTrue( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
+		lines.append('    // clear A, make sure they match')
+		lines.append(f'    EXPECT_TRUE( pds::dynamic_types::clear( type_index , ct_{cont.implementing_type} , dataA ) );')
+		lines.append(f'    EXPECT_TRUE( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
 		lines.append('')
-		lines.append('            // give A a random non-zero value')
+		lines.append('    // give A a random non-zero value')
 		if cont.is_template:
-			lines.append(f'            random_nonzero_{cont.implementing_type}<_Ty>( *(({cont.implementing_type}<_Ty>*)dataA) );')
+			lines.append(f'    random_nonzero_{cont.implementing_type}<_Ty>( *(({cont.implementing_type}<_Ty>*)dataA) );')
 		else:
-			lines.append(f'            random_nonzero_value<_Ty>( *((_Ty*)dataA) );')
+			lines.append(f'    random_nonzero_value<_Ty>( *((_Ty*)dataA) );')
 		lines.append('')
-		lines.append('            // try comparing, clearing and copying')
-		lines.append(f'            Assert::IsFalse( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
-		lines.append(f'            Assert::IsTrue( pds::dynamic_types::copy( type_index , ct_{cont.implementing_type} , dataB, dataA ) );')
-		lines.append(f'            Assert::IsTrue( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
-		lines.append(f'            Assert::IsTrue( pds::dynamic_types::clear( type_index , ct_{cont.implementing_type} , dataA ) );')
-		lines.append(f'            Assert::IsFalse( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
-		lines.append(f'            Assert::IsTrue( pds::dynamic_types::copy( type_index , ct_{cont.implementing_type} , dataB, dataA ) );')
-		lines.append(f'            Assert::IsTrue( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
+		lines.append('    // try comparing, clearing and copying')
+		lines.append(f'    EXPECT_FALSE( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
+		lines.append(f'    EXPECT_TRUE( pds::dynamic_types::copy( type_index , ct_{cont.implementing_type} , dataB, dataA ) );')
+		lines.append(f'    EXPECT_TRUE( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
+		lines.append(f'    EXPECT_TRUE( pds::dynamic_types::clear( type_index , ct_{cont.implementing_type} , dataA ) );')
+		lines.append(f'    EXPECT_FALSE( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
+		lines.append(f'    EXPECT_TRUE( pds::dynamic_types::copy( type_index , ct_{cont.implementing_type} , dataB, dataA ) );')
+		lines.append(f'    EXPECT_TRUE( pds::dynamic_types::equals( type_index , ct_{cont.implementing_type} , dataA, dataB ) );')
 		lines.append('')
-		lines.append('            // delete the heap allocated data')
-		lines.append(f'            Assert::IsTrue( pds::dynamic_types::delete_type( type_index , ct_{cont.implementing_type} , dataA ) );')
+		lines.append('    // delete the heap allocated data')
+		lines.append(f'    EXPECT_TRUE( pds::dynamic_types::delete_type( type_index , ct_{cont.implementing_type} , dataA ) );')
 		lines.append('')
 
-	lines.append('            }')
+	lines.append('    }')
+	lines.append('')
 
-	lines.append('        TEST_METHOD( DynamicTypes )')
-	lines.append('            {')
+	lines.append('TEST( DynamicTypesTests , DynamicTypes )')
+	lines.append('    {')
 
-	lines.append('            setup_random_seed();')
-	lines.append('            for( uint pass_index=0; pass_index<(2*global_number_of_passes); ++pass_index )')
-	lines.append('                {')
+	lines.append('    setup_random_seed();')
+	lines.append('    for( uint pass_index=0; pass_index<(2*global_number_of_passes); ++pass_index )')
+	lines.append('        {')
 
 	for basetype in hlp.base_types:
 		for var in basetype.variants:
-			lines.append(f'            DynamicValueTester<{var.implementing_type}>();')
+			lines.append(f'        DynamicValueTester<{var.implementing_type}>();')
 
-	lines.append('                }')
-	lines.append('            }')
+	lines.append('        }')
+	lines.append('    }')
 
-	lines.append('        };')
-	lines.append('    };')
 	hlp.write_lines_to_file("../Tests/DynamicTypesTests.cpp",lines)	
 	
 def run():

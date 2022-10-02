@@ -16,7 +16,9 @@ namespace pds
 		public:
 			static std::ostream &Error( const char *funcsig, const char *filename, int fileline ) 
 				{ 
-				std::cout << "Error: " << "\n" << "\t";
+				filename;
+				fileline;
+				std::cout << "Error: " << funcsig << "\n" << "\t";
 				return std::cout; 
 				}
 

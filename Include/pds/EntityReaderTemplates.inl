@@ -649,7 +649,7 @@ namespace pds
 			{
 			return std::tuple<EntityReader *, size_t, bool>( nullptr, 0, false );
 			}
-		this->active_subsection_index = ~0;
+		this->active_subsection_index = size_t(~0);
 
 		// allocate the subsection and return it to the caller to be used to read items in the subsection
 		this->active_subsection = std::unique_ptr<EntityReader>( new EntityReader( this->sstream , end_of_section ) );
@@ -735,7 +735,7 @@ namespace pds
 
 		this->active_subsection.reset();
 		this->active_subsection_array_size = 0;
-		this->active_subsection_index = ~0;
+		this->active_subsection_index = size_t(~0);
 		this->active_subsection_end_pos = 0;
 		return true;
 		}
