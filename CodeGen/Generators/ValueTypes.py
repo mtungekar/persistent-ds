@@ -28,6 +28,9 @@ def CombinedTypes_h():
 	lines.append('    using ctle::optional_value;')
 	lines.append('    using ctle::optional_vector;')
 	lines.append('')
+	lines.append('    // template to clear a combined type')
+	lines.append('    template <class _Ty> inline void clear_combined_type( _Ty& type );')
+	lines.append('')
 	lines.append('    // type_information stores information on the combined types in PDS')
 	lines.append('    template <class _Ty> struct combined_type_information;')
 	lines.append('')
@@ -58,8 +61,6 @@ def CombinedTypes_inl():
 	lines.append('')
 	lines.append('namespace pds')
 	lines.append('    {')
-	lines.append('    // template to clear a combined type')
-	lines.append('    template <class _Ty> inline void clear_combined_type( _Ty& type );')
 	lines.append('')
 
 	def generate_clear_combined_type( base_type_name , implementing_type , container_type , item_type , num_items_per_object , base_type_combo ):
@@ -72,7 +73,6 @@ def CombinedTypes_inl():
 			lines.append(f'    template <> inline void clear_combined_type<{base_type_combo}>( {base_type_combo} &type ) {{ type.reset(); }}' )
 		return lines
 	lines.extend( hlp.function_for_all_basetype_combos( generate_clear_combined_type ))
-
 
 	# end of namespace
 	lines.append('    };')

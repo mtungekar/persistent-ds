@@ -451,6 +451,7 @@ def ListPackageHeaderDefines():
 	# inline entity_ref and item_ref
 	lines.append(f"\tusing pds::entity_ref;")
 	lines.append(f"\tusing pds::item_ref;")
+	lines.append('')
 
 	# enum of all data types
 	lines.append('\t// value type index enums')

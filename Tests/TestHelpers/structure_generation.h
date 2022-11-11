@@ -48,7 +48,7 @@ size_t GenerateRandomItemTable( Dict &random_dict , size_t minc = 0, size_t maxc
 		// if Dict::type_no_null_entities is true, *always* add a value, else add 50% of the time
 		if( Dict::type_no_null_entities || random_value<bool>() )
 			{
-			random_dict.Entries()[key] = std::make_unique<TestEntity>();
+			random_dict.Entries()[key] = std::make_unique<TestEntityA>();
 			random_dict.Entries()[key]->Name() = random_value<std::string>();
 			}
 		else

@@ -16,6 +16,7 @@ x64
 /Include/pds/ValueTypes.inl
 
 /Tests/DynamicTypesTests.cpp
-/Tests/TestPack1
-/Tests/TestPack2
-/Tests/TestPack3
+/Tests/TestPackA
+/Tests/TestPackB
+/Tests/TestPackC
+/CodeGen/.vscode

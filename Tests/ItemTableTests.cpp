@@ -9,25 +9,25 @@
 
 #include <pds/ItemTable.h>
 
-#include "TestPack1/TestEntity.h"
+#include "TestPackA/TestEntityA.h"
 #include "TestHelpers/structure_generation.h"
 
 using pds::ItemTable;
-using TestPack1::TestEntity;
+using TestPackA::TestEntityA;
 
 template<class _Kty> void ItemTableBasicTests_Validation()
 	{
 	// check with no validation
 	if( true )
 		{
-		typedef ItemTable<_Kty, TestEntity, ItemTableFlags::NullEntities | ItemTableFlags::ZeroKeys> Dict;
+		typedef ItemTable<_Kty, TestEntityA, ItemTableFlags::NullEntities | ItemTableFlags::ZeroKeys> Dict;
 		Dict dict;
 
 		EntityValidator validator;
 		const _Kty zero = data_type_information<_Kty>::zero;
 
 		// add a zero key  with a null value entry
-		dict.Entries()[zero] = std::unique_ptr<TestEntity>();
+		dict.Entries()[zero] = std::unique_ptr<TestEntityA>();
 		EXPECT_TRUE( dict.Entries().size() == 1 );
 
 		// check validation, this should succeed
@@ -38,14 +38,14 @@ template<class _Kty> void ItemTableBasicTests_Validation()
 	// check zero key validation
 	if( true )
 		{
-		typedef ItemTable<_Kty, TestEntity, ~ItemTableFlags::ZeroKeys> Dict;
+		typedef ItemTable<_Kty, TestEntityA, ~ItemTableFlags::ZeroKeys> Dict;
 		Dict dict;
 
 		EntityValidator validator;
 		const _Kty zero = data_type_information<_Kty>::zero;
 
 		// add a zero key entry (invalid)
-		dict.Entries()[zero] = std::make_unique<TestEntity>();
+		dict.Entries()[zero] = std::make_unique<TestEntityA>();
 		EXPECT_TRUE( dict.Entries().size() == 1 );
 
 		// check validation, this should fail
@@ -56,14 +56,14 @@ template<class _Kty> void ItemTableBasicTests_Validation()
 	// check null value validation
 	if( true )
 		{
-		typedef ItemTable<_Kty, TestEntity, ~ItemTableFlags::NullEntities> Dict;
+		typedef ItemTable<_Kty, TestEntityA, ~ItemTableFlags::NullEntities> Dict;
 		Dict dict;
 
 		EntityValidator validator;
 		const _Kty inf_val = data_type_information<_Kty>::inf;
 
 		// add a null ptr value entry (invalid)
-		dict.Entries()[inf_val] = std::unique_ptr<TestEntity>();
+		dict.Entries()[inf_val] = std::unique_ptr<TestEntityA>();
 		EXPECT_TRUE( dict.Entries().size() == 1 );
 
 		// check validation, this should fail
@@ -74,7 +74,7 @@ template<class _Kty> void ItemTableBasicTests_Validation()
 	// check all validations
 	if( true )
 		{
-		typedef ItemTable < _Kty, TestEntity, ~(ItemTableFlags::NullEntities | ItemTableFlags::ZeroKeys) > Dict;
+		typedef ItemTable < _Kty, TestEntityA, ~(ItemTableFlags::NullEntities | ItemTableFlags::ZeroKeys) > Dict;
 		Dict dict;
 
 		EntityValidator validator;
@@ -86,7 +86,7 @@ template<class _Kty> void ItemTableBasicTests_Validation()
 			const _Kty rand_val = random_value<_Kty>();
 			if( rand_val != data_type_information<_Kty>::zero )
 				{
-				dict.Entries()[rand_val] = std::make_unique<TestEntity>();
+				dict.Entries()[rand_val] = std::make_unique<TestEntityA>();
 				}
 			}
 
@@ -98,16 +98,16 @@ template<class _Kty> void ItemTableBasicTests_Validation()
 	// test copying and moving contents of one dictionary to another 
 	if( true )
 		{
-		typedef ItemTable<_Kty, TestEntity> Dict;
+		typedef ItemTable<_Kty, TestEntityA> Dict;
 		Dict dict;
 
 		// add a number of random values, record the pointers
 		size_t cnt = capped_rand( 3, 10 );
-		std::set<TestEntity *> ptrs;
+		std::set<TestEntityA *> ptrs;
 		for( size_t i = 0; i < cnt; ++i )
 			{
 			const _Kty rand_val = random_value<_Kty>();
-			dict.Entries()[rand_val] = std::make_unique<TestEntity>();
+			dict.Entries()[rand_val] = std::make_unique<TestEntityA>();
 			dict.Entries()[rand_val]->Name() = random_value<string>();
 			ptrs.insert( dict.Entries()[rand_val].get() );
 			}
@@ -165,7 +165,7 @@ TEST( ItemTableTests , BasicTests )
 
 template<class T> void ItemTableReadWriteTests_TestKeyType( const MemoryWriteStream &ws, EntityWriter &ew )
 	{
-	typedef ItemTable<T, TestEntity> Dict;
+	typedef ItemTable<T, TestEntityA> Dict;
 
 	Dict random_dict;
 

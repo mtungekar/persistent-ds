@@ -31,9 +31,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	# SystemTest run full system tests
 	add_executable( SystemTest
 					./Tests/SystemTest.cpp 
-					./Tests/TestPack1/TestPack1.cpp 
-					./Tests/TestPack2/TestPack2.cpp 
-					./Tests/TestPack3/TestPack3.cpp 
+					./Tests/TestPackA/TestPackA.cpp 
 					)	
 	target_include_directories(	SystemTest 
 								PUBLIC
@@ -42,6 +40,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 									"${PROJECT_SOURCE_DIR}/Dependencies/fast_float/include"
 									"${PROJECT_SOURCE_DIR}/Dependencies/glm"
 									"${PROJECT_SOURCE_DIR}/Dependencies/librock_sha256"
+									"${PROJECT_SOURCE_DIR}/Tests"									
 								)
 	target_link_libraries( 	SystemTest 
 							Rpcrt4
@@ -60,9 +59,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 					./Tests/Tests.cpp 
 					./Tests/TypeTests.cpp 
 					./Tests/TestHelpers/random_vals.cpp 
-					./Tests/TestPack1/TestPack1.cpp 
-					./Tests/TestPack2/TestPack2.cpp 
-					./Tests/TestPack3/TestPack3.cpp 
+					./Tests/TestPackA/TestPackA.cpp 
 					)
 	target_include_directories( Tests 
 								PUBLIC
@@ -71,6 +68,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 									"${PROJECT_SOURCE_DIR}/Dependencies/fast_float/include"
 									"${PROJECT_SOURCE_DIR}/Dependencies/glm"
 									"${PROJECT_SOURCE_DIR}/Dependencies/librock_sha256"
+									"${PROJECT_SOURCE_DIR}/Tests"
 								)
 	target_link_libraries( 	Tests 
 							gtest_main 

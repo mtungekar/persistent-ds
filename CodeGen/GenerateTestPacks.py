@@ -3,48 +3,58 @@
 
 from EntitiesHelpers import *
 
-def GenTestPack1():
-	items = []
-
-	items.append(
-		Entity(
-			name = "TestEntity", 
-			dependencies = [],
+v1_0 = Version( "v1_0", 
+	previousVersion = None, 
+	items = [
+		NewItem( "TestItemA",
 			variables = [ Variable("string", "Name"),
-						  Variable("string", "OptionalText", optional = True ) ]
+							Variable("string", "OptionalText", optional = True ) ] 
+			),
+		NewEntity( "TestEntityA", 
+			dependencies = [ Dependency( "ItemTable", include_in_header = True),
+							 Dependency( "TestItemA", include_in_header = True ) ],
+			templates = [ Template("test_table", template = "ItemTable", types = ["item_ref","TestItemA"] , flags=['ZeroKeys'] ) ],
+			variables = [ Variable( type="test_table" , name="TestVariableA", optional=True) ,
+						  Variable("string", "Name"),
+						  Variable("string", "OptionalText", optional = True ) ] 
 			)
-		)
+		]
+	) 
 
-	hlp.run_module('PackageGenerator', Package("TestPack1","../Tests/TestPack1", items ) )
-
-def GenTestPack2():
-	items = []
-
-	items.append(
-		Entity(
-			name = "TestEntity", 
+v1_1 = Version( "v1_1", 
+	previousVersion = v1_0, 
+	items = [
+		IdenticalItem( "TestItemA" ),
+		IdenticalEntity( "TestEntityA" ),
+		NewEntity( "TestEntityB", 
 			dependencies = [],
-			variables = [ Variable("string", "Name2"),
-						  Variable("string", "OptionalText2", optional = True ) ]
+			variables = [ Variable("string", "Name") ]
 			)
-		)
+		]
+	) 
 
-	hlp.run_module('PackageGenerator', Package("TestPack2","../Tests/TestPack2", items ) )
-
-def GenTestPack3():
-	items = []
-
-	items.append(
-		Entity(
-			name = "TestEntity", 
+v1_2 = Version( "v1_2", 
+	previousVersion = v1_1, 
+	items = [
+		IdenticalItem( "TestItemA" ),
+		IdenticalEntity( "TestEntityA" ),
+		ModifiedEntity( "TestEntityB", 
 			dependencies = [],
-			variables = [ Variable("string", "Name3"),
-						  Variable("string", "OptionalText3", optional = True ) ]
+			variables = [ Variable("string", "Name2") ],
+			mappings = [ RenamedVariable("Name2","Name") ]
 			)
-		)
+		]
+	) 
 
-	hlp.run_module('PackageGenerator', Package("TestPack3","../Tests/TestPack3", items ) )
+TestPackA = Package( "TestPackA", 
+	path = "../Tests/TestPackA", 
+	versions = [  
+		v1_0,
+		v1_1,
+		v1_2,
+		] 
+	)
 
-GenTestPack1()
-GenTestPack2()
-GenTestPack3()
+hlp.run_module('PackageGenerator', TestPackA, v1_2 )
+
+
