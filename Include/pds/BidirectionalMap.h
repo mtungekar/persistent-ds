@@ -133,6 +133,10 @@ namespace pds
 	template<class _Kty, class _Vty, class _Base>
 	bool BidirectionalMap<_Kty,_Vty,_Base>::MF::Validate( const _MgmCl &obj , EntityValidator &validator )
 		{
+		// references to silence warnings
+		obj;
+		validator;
+
 		return true;
 		}
 

@@ -306,6 +306,11 @@ namespace pds
 			std::future<Status> LoadEntityAsync( const entity_ref &ref );
 			Status LoadEntity( const entity_ref &ref );
 
+			// Unloads all entities which are not referenced outside of the EntityHandler
+			// To make sure an entity is kept around, keep a reference to the entity using the 
+			// std::shared_ptr<const Entity> returned by GetLoadedEntity().
+			Status UnloadNonReferencedEntities();
+
 			// Checks if an entity is loaded. 
 			bool IsEntityLoaded( const entity_ref &ref );
 
@@ -321,6 +326,8 @@ namespace pds
 			// existing reference will be returned and the Status will be WAlreadyExists
 			std::future<std::pair<entity_ref, Status>> AddEntityAsync( const std::shared_ptr<const Entity> &entity );
 			std::pair<entity_ref, Status> AddEntity( const std::shared_ptr<const Entity> &entity );
+
+
 		};
 
 	};

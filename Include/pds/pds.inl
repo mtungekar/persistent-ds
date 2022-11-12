@@ -32,6 +32,7 @@
 #include "DataTypes.inl"
 #include "EntityWriter.inl"
 #include "EntityReader.inl"
+#include "DynamicTypes.inl"
 
 using namespace pds;
 using std::pair;
@@ -336,8 +337,10 @@ Status EntityHandler::Initialize( const std::string &path , const std::vector<co
 
 	// make sure it is a directory 
 	DWORD file_attributes = GetFileAttributesW( wpath.c_str() );
-	if( (file_attributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY )
+	if(    (file_attributes == INVALID_FILE_ATTRIBUTES)
+		|| (file_attributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY )
 		{
+		pdsErrorLog << "Invalid path: " << path << pdsErrorLogEnd;
 		return Status::EParam; // invalid path
 		}
 
@@ -471,6 +474,28 @@ Status EntityHandler::LoadEntity( const entity_ref &ref )
 	futr.wait();
 	return futr.get();
 	}
+
+Status EntityHandler::UnloadNonReferencedEntities()
+	{
+	ctle::readers_writer_lock::write_guard guard( this->EntitiesLock );
+
+	auto it = this->Entities.begin();
+	while( it != this->Entities.end() )
+		{
+		// if this entity is only held by us, remove it, else skip to next
+		if( it->second.use_count() == 1 )
+			{
+			it = this->Entities.erase( it );
+			}
+		else
+			{
+			++it;
+			}
+		}
+
+	return Status::Ok;
+	}
+
 
 bool EntityHandler::IsEntityLoaded( const entity_ref &ref )
 	{

@@ -837,7 +837,11 @@ def CreatePackageHeader( package ):
 	lines.append('#pragma once')
 	lines.append('')
 	lines.append(f'#include <pds/pds.h>')
-	lines.append(f'#include <pds/ValueTypes.h>')
+	lines.append(f'#include <pds/IndexedVector.h>')
+	lines.append(f'#include <pds/ItemTable.h>')
+	lines.append(f'#include <pds/Varying.h>')
+	lines.append(f'#include <pds/DirectedGraph.h>')
+	lines.append(f'#include <pds/BidirectionalMap.h>')
 	lines.append('')
 		
 	lines.append('')

@@ -458,6 +458,15 @@ def ListPackageHeaderDefines():
 	lines.append('\tusing pds::data_type_index;')
 	lines.append('')
 
+	# standard PDS data classes
+	lines.append('\t// data classes')
+	lines.append('\tusing pds::IndexedVector;')
+	lines.append('\tusing pds::ItemTable;')
+	lines.append('\tusing pds::Varying;')
+	lines.append('\tusing pds::DirectedGraph;')
+	lines.append('\tusing pds::BidirectionalMap;')
+	lines.append('')
+
 	# type information on all types
 	lines.append('\t// type information templates')
 	lines.append('\ttemplate <class _Ty> using data_type_information = pds::data_type_information<_Ty>;')
