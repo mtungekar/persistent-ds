@@ -440,11 +440,11 @@ def CreateItemSource(item):
 	# include dependences that were forward referenced in the header
 	for dep in item.Dependencies:
 		if not dep.IncludeInHeader:
-			if dep.PackageName != None:
-				lines.append(f'#include <{dep.PackageName}/{dep.Name}.h>')
+			if dep.PDSType:
+				lines.append(f'#include <pds/{dep.Name}.h>')
 			else:
 				lines.append(f'#include "{versionName}_{dep.Name}.h"')
-		
+
 	lines.append('')
 	lines.append(f'namespace {packageName}')
 	lines.append('    {')
@@ -587,7 +587,7 @@ def CreateItemSource(item):
 		for mapping in item.Mappings:
 			lines.extend(ImplementToPreviousCall(item,mapping))	
 		lines.append('')			
-		lines.append('        return true;')
+		lines.append('        return success;')
 		lines.append('        }')
 		lines.append('')
 		lines.append(f'    bool {item.Name}::MF::FromPrevious( {item.Name} &obj , const {item.PreviousVersion.Version.Name}::{item.Name} &src )')
@@ -597,7 +597,7 @@ def CreateItemSource(item):
 		for mapping in item.Mappings:
 			lines.extend(ImplementFromPreviousCall(item,mapping))	
 		lines.append('')			
-		lines.append('        return true;')
+		lines.append('        return success;')
 		lines.append('        }')
 
 	lines.append('    };')
@@ -909,7 +909,51 @@ def CreateDefaultVersionReferencesAndHeaders( version: Version ):
 
 			hlp.write_lines_to_file(f"{package.Path}/{item.Name}.h",lines)
 
-def run( package: Package, defaultVersion:Version = None ):
+def FindAndCreateDefaultVersionReferencesAndHeaders( package: Package , defaultVersion:str ):
+	# if we want default version headers and references directly in the Package
+	if defaultVersion != None:
+		if defaultVersion == "Latest":
+
+			# look for a version which does not have a later version
+			hasFoundALatest = False
+			for version in package.Versions:	
+				# for each version, check if any other version points at it
+				hasLater = False
+				for laterVersion in package.Versions:	
+					if laterVersion == version:
+						continue
+					if laterVersion.PreviousVersion == version:
+						hasLater = True
+						break
+				if not hasLater:
+					if hasFoundALatest:
+						print('Error: The package has "Latest" set as selected default version, but there are more than one leaf versions.')
+						exit(1)
+					CreateDefaultVersionReferencesAndHeaders( version )
+					hasFoundALatest = True
+					break
+
+			# make sure one was found
+			if not hasFoundALatest:
+				print('Error: The package has "Latest" set as selected default version, but no leaf version was found.')
+				exit(1)
+
+		else:
+			# set a specific version as the latest
+			hasFoundVersion = False
+			for version in package.Versions:
+				if version.Name == defaultVersion:
+					CreateDefaultVersionReferencesAndHeaders( version )
+					hasFoundVersion = True
+					break
+			
+			# make sure one was found
+			if not hasFoundVersion:
+				print(f'Error: The package has "{defaultVersion}" set as selected default version, but no leaf version was found.')
+				exit(1)
+
+
+def run( package: Package, defaultVersion:str = None ):
 	
 	os.makedirs(package.Path, exist_ok=True)
 	for version in package.Versions:
@@ -926,7 +970,4 @@ def run( package: Package, defaultVersion:Version = None ):
 				CreateItemHeader( item )
 				CreateItemSource( item )
 	
-	# if we want default version headers and references directly in the Package
-	if defaultVersion != None:
-		CreateDefaultVersionReferencesAndHeaders( defaultVersion )
-
+	FindAndCreateDefaultVersionReferencesAndHeaders( package, defaultVersion )
