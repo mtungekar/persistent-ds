@@ -470,7 +470,7 @@ std::future<Status> EntityHandler::LoadEntityAsync( const entity_ref &ref )
 
 Status EntityHandler::LoadEntity( const entity_ref &ref )
 	{
-	auto futr = LoadEntityAsync( ref );
+	auto futr = this->LoadEntityAsync( ref );
 	futr.wait();
 	return futr.get();
 	}
@@ -600,7 +600,7 @@ std::future<std::pair<entity_ref, Status>> EntityHandler::AddEntityAsync( const 
 
 std::pair<entity_ref, Status> EntityHandler::AddEntity( const std::shared_ptr<const Entity> &entity )
 	{
-	auto futr = AddEntityAsync( entity );
+	auto futr = this->AddEntityAsync( entity );
 	futr.wait();
 	return futr.get();
 	}
