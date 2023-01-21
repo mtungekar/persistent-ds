@@ -8,7 +8,7 @@
 // silence warning we can't control
 #pragma warning( push )
 #pragma warning( disable : 4456 )
-#include "../Dependencies/librock_sha256/librock_sha256.c"
+#include <librock_sha256.c>
 #pragma warning( pop )
 
 using namespace pds;

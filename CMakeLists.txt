@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
-
-include(FetchContent)
-
-set( CMAKE_DEBUG_POSTFIX _d )
-
 project( persistent-ds )
+
+find_package(PythonInterp REQUIRED)
+find_package(Python REQUIRED)
+include(FetchContent)
 
 # glm 
 FetchContent_Declare(
@@ -26,17 +25,15 @@ FetchContent_Declare(
 	GIT_REPOSITORY https://github.com/forrestcavalier/librock_sha256.git
 	GIT_TAG		   387f4cfff7c5913bcbeaf4c1c1f53f657cc4a6d0
 )
-
-# lots of warnings and all warnings as errors
-# big object files
-if(MSVC)
-    add_compile_options(/W4 /WX)
-	add_compile_options(/bigobj)
-else()
-    add_compile_options(-Wall -Wextra -pedantic -Werror)
-	add_compile_options(-Wa,-mbig-obj)
-endif()
-			
+	
+# generate the pds code
+execute_process( 
+	COMMAND 			${PYTHON_EXECUTABLE} CodeGenerator.py
+	WORKING_DIRECTORY 	${CMAKE_CURRENT_LIST_DIR}/CodeGen
+	RESULT_VARIABLE 	py_result
+)
+message(STATUS "Result of CodeGenerator.py: ${py_result}")
+	
 # if this is the main build of persistent-ds, build the testing code
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)			
 				
@@ -52,6 +49,25 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		librocksha256 
 		googletest 
 		)
+		
+	# generate the pds test code
+	execute_process( 
+		COMMAND 			${PYTHON_EXECUTABLE} GenerateTestPacks.py
+		WORKING_DIRECTORY 	${CMAKE_CURRENT_LIST_DIR}/CodeGen
+		RESULT_VARIABLE 	py_result
+	)
+	message(STATUS "Result of GenerateTestPacks.py: ${py_result}")
+
+	# lots of warnings and all warnings as errors
+	# big object files
+	if(MSVC)
+		add_compile_options(/W4 /WX)
+		add_compile_options(/bigobj)
+	else()
+		add_compile_options(-Wall -Wextra -pedantic -Werror)
+		add_compile_options(-Wa,-mbig-obj)
+	endif()
+	set( CMAKE_DEBUG_POSTFIX _d )
 	
 	# SystemTest run full system tests
 	add_executable( systemtest
@@ -61,7 +77,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	target_include_directories(	systemtest 
 								PUBLIC ${PROJECT_SOURCE_DIR}/Include
 								PUBLIC ${glm_SOURCE_DIR}
-								PUBLIC ${librocksha256_SOURCE_DIR}/include
+								PUBLIC ${librocksha256_SOURCE_DIR}
 								PUBLIC ${ctle_SOURCE_DIR}
 								PUBLIC ${PROJECT_SOURCE_DIR}/Tests
 								)
@@ -87,7 +103,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	target_include_directories( tests 
 								PUBLIC ${PROJECT_SOURCE_DIR}/Include
 								PUBLIC ${glm_SOURCE_DIR}
-								PUBLIC ${librocksha256_SOURCE_DIR}/include
+								PUBLIC ${librocksha256_SOURCE_DIR}
 								PUBLIC ${ctle_SOURCE_DIR}
 								PUBLIC ${PROJECT_SOURCE_DIR}/Tests
 								)
