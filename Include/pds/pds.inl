@@ -241,7 +241,7 @@ static std::shared_ptr<Entity> entityNew( const std::vector<const EntityHandler:
 	if( !entityTypeString )
 		{
 		pdsErrorLog << "Invalid parameter, entityTypeString must be a pointer to a string" << pdsErrorLogEnd;
-		return false;
+		return nullptr;
 		}
 
 	for( size_t i = 0; i < records.size(); ++i )

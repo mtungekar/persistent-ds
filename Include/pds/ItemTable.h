@@ -4,6 +4,9 @@
 #pragma once
 
 #include "pds.h"
+#include "EntityWriter.h"
+#include "EntityReader.h"
+#include "EntityValidator.h"
 
 namespace pds
 	{
@@ -62,10 +65,6 @@ namespace pds
 			// insert a key and new empty value, returns reference to value
 			mapped_type &Insert( const key_type &key ) { this->v_Entries.emplace( key, std::make_unique<mapped_type>() ); return *(this->v_Entries[key].get()); }
 		};
-
-	class EntityWriter;
-	class EntityReader;
-	class EntityValidator;
 
 	template<class _Kty, class _Ty, uint _Flags, class _MapTy>
 	class ItemTable<_Kty,_Ty,_Flags,_MapTy>::MF

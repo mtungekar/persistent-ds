@@ -72,11 +72,11 @@ def EntityReader_h():
 
 	lines.append('		};')
 	lines.append('')
-	lines.append('	// Read method. Specialized for all supported value types.')
-	lines.append('	template <class T> bool EntityReader::Read( const char *key, const u8 key_length, T &value )')
-	lines.append('		{')
-	lines.append('		static_assert(false, "Error: EntityReader::Read template: The value type T cannot be serialized.");')
-	lines.append('		}')
+	#lines.append('	// Read method. Specialized for all supported value types.')
+	#lines.append('	template <class T> bool EntityReader::Read( const char *key, const u8 key_length, T &value )')
+	#lines.append('		{')
+	#lines.append('		static_assert(false, "Error: EntityReader::Read template: The value type T cannot be serialized.");')
+	#lines.append('		}')
 	lines.append('	};')
 	hlp.write_lines_to_file("../Include/pds/EntityReader.h",lines)
 

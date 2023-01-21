@@ -226,7 +226,7 @@ def DynamicTypesTests_cpp():
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('#include "Tests.h"')
-	lines.append('#include <pds/DynamicTypes.inl>')
+	lines.append('#include <pds/DynamicTypes.h>')
 	lines.append('#include <pds/EntityWriter.inl>')
 	lines.append('#include <pds/EntityReader.inl>')
 	lines.append('')

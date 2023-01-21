@@ -76,7 +76,7 @@ def CreateItemHeader(item: Item):
 		lines.append('            class MF;')
 		lines.append('            friend MF;')
 		lines.append('')
-		lines.append(f'            static constexpr char *ItemTypeString = "{packageName}.{versionName}.{item.Name}";')
+		lines.append(f'            static constexpr const char *ItemTypeString = "{packageName}.{versionName}.{item.Name}";')
 		lines.append('')
 		
 		if item.IsEntity:

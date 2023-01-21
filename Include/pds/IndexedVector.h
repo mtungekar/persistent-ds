@@ -5,6 +5,10 @@
 
 #include "ValueTypes.h"
 
+#include "EntityWriter.h"
+#include "EntityReader.h"
+#include "EntityValidator.h"
+
 namespace pds
 	{
 	template <class _Ty, class _Base = idx_vector<_Ty> >
@@ -28,10 +32,6 @@ namespace pds
 			bool operator==( const IndexedVector &rval ) const { return MF::Equals( this, &rval ); }
 			bool operator!=( const IndexedVector &rval ) const { return !(MF::Equals( this, &rval )); }
 		};
-
-	class EntityWriter;
-	class EntityReader;
-	class EntityValidator;
 
 	template<class _Ty, class _Base>
 	class IndexedVector<_Ty,_Base>::MF
@@ -108,7 +108,7 @@ namespace pds
 			}
 
 		// cap the count to 32 bit int
-		const u32 values_count = (u32)std::min( obj.values().size() , (size_t)i32_sup );
+		const u32 values_count = (u32)(std::min)( obj.values().size() , (size_t)i32_sup );
 		for( size_t i=0; i<obj.index().size(); ++i )
 			{
 			if( (u32)obj.index()[i] >= values_count )

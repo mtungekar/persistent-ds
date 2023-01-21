@@ -157,7 +157,6 @@ namespace pds
 		}
 
 	// read one item of data
-	template <class T> T MemoryReadStream::Read() { static_assert(false, "MemoryReadStream::Read<T>(), invalid template type T, use the implemented types"); }
 	template <> inline i8 MemoryReadStream::Read<i8>() { i8 dest = 0; this->Read( &dest, 1 ); return dest; }
 	template <> inline i16 MemoryReadStream::Read<i16>() { i16 dest = 0; this->Read( &dest, 1 ); return dest; }
 	template <> inline i32 MemoryReadStream::Read<i32>() { i32 dest = 0; this->Read( &dest, 1 ); return dest; }

@@ -24,7 +24,6 @@ namespace pds
 	// a stream position of 0 is not possible, and indicates error
 	inline u64 begin_read_large_block( MemoryReadStream &sstream, ValueType VT, const char *key, const u8 key_size_in_bytes )
 		{
-		const u64 start_pos = sstream.GetPosition();
 		pdsSanityCheckDebugMacro( key_size_in_bytes <= EntityMaxKeyLength ); // max key length
 
 		// read and make sure we have the correct value type

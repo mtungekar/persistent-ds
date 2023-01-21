@@ -70,11 +70,11 @@ def EntityWriter_h():
 
 	lines.append('		};')
 	lines.append('')
-	lines.append('	// Write function. Specialized for all supported value types.')
-	lines.append('	template <class T> bool EntityWriter::Write( const char *key, const u8 key_length, const T &value )')
-	lines.append('		{')
-	lines.append('		static_assert(false, "Error: EntityWriter::Write template: The value type T cannot be serialized.");')
-	lines.append('		}')
+	#lines.append('	// Write function. Specialized for all supported value types.')
+	#lines.append('	template <class T> bool EntityWriter::Write( const char *key, const u8 key_length, const T &value )')
+	#lines.append('		{')
+	#lines.append('		static_assert(false, "Error: EntityWriter::Write template: The value type T cannot be serialized.");')
+	#lines.append('		}')
 	lines.append('	};')
 	hlp.write_lines_to_file("../Include/pds/EntityWriter.h",lines)
 
