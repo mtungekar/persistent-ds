@@ -25,9 +25,9 @@ inline u64 u64_rand() { return u64(u32_rand()) << 32 | u64(u32_rand()); }
 inline float float_rand() { return float(u64_rand()); } 
 inline double double_rand() { return double(u64_rand()); } 
 
-inline UUID uuid_rand() 
+inline uuid uuid_rand() 
 	{ 
-	const UUID id = {u32_rand(), u16_rand(), u16_rand(), { u8_rand(), u8_rand(), u8_rand(), u8_rand(), u8_rand(), u8_rand(), u8_rand(), u8_rand() }};
+	const uuid id{{u8_rand(), u8_rand(), u8_rand(), u8_rand(),u8_rand(), u8_rand(), u8_rand(), u8_rand(),u8_rand(), u8_rand(), u8_rand(), u8_rand(),u8_rand(), u8_rand(), u8_rand(), u8_rand() }};
 	return id;
 	}
 

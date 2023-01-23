@@ -1,116 +1,88 @@
-cmake_minimum_required(VERSION 3.21)
-project( persistent-ds )
+cmake_minimum_required(VERSION 3.22)
+project( persistent-ds VERSION 0.2 LANGUAGES CXX )
 
-find_package(PythonInterp REQUIRED)
-find_package(Python REQUIRED)
 include(FetchContent)
 
-# glm 
+# vcpkg 
 FetchContent_Declare(
-	glm
-	GIT_REPOSITORY https://github.com/g-truc/glm.git
-	GIT_TAG        bf71a834948186f4097caa076cd2663c69a10e1e # 0.9.9.8
-)
-			
-# ctle 
-FetchContent_Declare(
-	ctle
-	GIT_REPOSITORY https://github.com/Cooolrik/ctle.git
-	GIT_TAG		   main
+	vcpkg
+	GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
+	GIT_TAG        2023.01.09 #f14984af3738e69f197bf0e647a8dca12de92996 # 2023.01.09
+    SOURCE_DIR vcpkg
 )
 
-# librocksha256 
-FetchContent_Declare(
-	librocksha256
-	GIT_REPOSITORY https://github.com/forrestcavalier/librock_sha256.git
-	GIT_TAG		   387f4cfff7c5913bcbeaf4c1c1f53f657cc4a6d0
-)
-	
-# generate the pds code
+FetchContent_MakeAvailable(vcpkg)
+
+FetchContent_GetProperties(vcpkg)
+
+# bootstrap vcpkg and install required packages
+if(NOT vcpkg_POPULATED)
+    message(FATAL_ERROR "Failed to fetch  vcpkg. Aborting....")
+else()
+    if(WIN32)
+        message(STATUS "Run bootstrap-vcpkg")
+        execute_process(COMMAND cmd /C "${vcpkg_SOURCE_DIR}/bootstrap-vcpkg.bat" COMMAND_ECHO STDOUT )
+        message(STATUS "Installing x64-windows triplet")
+        execute_process(COMMAND cmd /C "${vcpkg_SOURCE_DIR}/vcpkg.exe install --triplet x64-windows" COMMAND_ECHO STDOUT)
+    elseif(LINUX)
+        execute_process(COMMAND cmd /C "${vcpkg_SOURCE_DIR}/bootstrap-vcpkg.sh" COMMAND_ECHO STDOUT)
+        message(STATUS "Installing x64-linux triplet")
+        execute_process(COMMAND cmd /C "${vcpkg_SOURCE_DIR}/vcpkg install --triplet x64-linux" COMMAND_ECHO STDOUT)
+    else()
+        message(FATAL_ERROR "${CMAKE_SYSTEM_NAME} not supported currently. Aborting....")
+    endif()
+    # include toolchain file. This is usually setup through command line if vcpkg is a submodule or already checked out in anoter location.
+	message(STATUS "${CMAKE_TOOLCHAIN_FILE} ")
+	include(${CMAKE_TOOLCHAIN_FILE})
+    
+    # enable vcpkg manifest mode
+    set(ENV{VCPKG_FEATURE_FLAGS} "manifests")
+endif()
+
+# options can be setup in CMakePresets.json/CMkaeUserPrests.json (cacheVariables). Or passed through the command lines.
+option(ENABLE_UNIT_TESTING "Enable Test Builds" OFF)
+option(ENABLE_CLANG_FORMAT "Enable clang format for generated code." OFF)
+
+include(${CMAKE_SOURCE_DIR}/cmake/project_settings.cmake)
+include (${CMAKE_SOURCE_DIR}/cmake/compiler_warnings.cmake)
+
+set_project_warnings(${PROJECT_NAME})
+
+# find python
+find_package(PythonInterp REQUIRED)
+find_package(Python REQUIRED)
+
+# check if code generation should format using clang
+if(ENABLE_CLANG_FORMAT)
+	set(SCRIPT_ARGS "--clang_format")
+endif()
+
+# run code generator
 execute_process( 
-	COMMAND 			${PYTHON_EXECUTABLE} CodeGenerator.py
+	COMMAND 			${PYTHON_EXECUTABLE} CodeGenerator.py ${SCRIPT_ARGS}
 	WORKING_DIRECTORY 	${CMAKE_CURRENT_LIST_DIR}/CodeGen
 	RESULT_VARIABLE 	py_result
 )
 message(STATUS "Result of CodeGenerator.py: ${py_result}")
+
 	
 # if this is the main build of persistent-ds, build the testing code
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)			
 				
-	# dowload gtest
-	FetchContent_Declare(
-	  googletest
-	  URL https://github.com/google/googletest/archive/58d77fa8070e8cec2dc1ed015d66b454c8d78850.zip
-	)
-
-	FetchContent_MakeAvailable( 
-		glm
-		ctle 
-		librocksha256 
-		googletest 
-		)
-		
 	# generate the pds test code
 	execute_process( 
-		COMMAND 			${PYTHON_EXECUTABLE} GenerateTestPacks.py
+		COMMAND 			${PYTHON_EXECUTABLE} GenerateTestPacks.py ${SCRIPT_ARGS}
 		WORKING_DIRECTORY 	${CMAKE_CURRENT_LIST_DIR}/CodeGen
 		RESULT_VARIABLE 	py_result
 	)
 	message(STATUS "Result of GenerateTestPacks.py: ${py_result}")
-
-	# lots of warnings and all warnings as errors
-	# big object files
-	if(MSVC)
-		add_compile_options(/W4 /WX)
-		add_compile_options(/bigobj)
-	else()
-		add_compile_options(-Wall -Wextra -pedantic -Werror)
-		add_compile_options(-Wa,-mbig-obj)
-	endif()
-	set( CMAKE_DEBUG_POSTFIX _d )
 	
-	# SystemTest run full system tests
-	add_executable( systemtest
-					./Tests/SystemTest.cpp 
-					./Tests/TestPackA/TestPackA.cpp 
-					)	
-	target_include_directories(	systemtest 
-								PUBLIC ${PROJECT_SOURCE_DIR}/Include
-								PUBLIC ${glm_SOURCE_DIR}
-								PUBLIC ${librocksha256_SOURCE_DIR}
-								PUBLIC ${ctle_SOURCE_DIR}
-								PUBLIC ${PROJECT_SOURCE_DIR}/Tests
-								)
-	target_link_libraries( 	systemtest 
-							Rpcrt4
-							)
+	# add include subdirectory (has its own list files with install setup)
+	add_subdirectory(Include)
 
-	# Tests run unit tests and other specific tests
-	add_executable( tests
-					./Tests/DirectedGraphTests.cpp
-					./Tests/DynamicTypesTests.cpp
-					./Tests/EntityReaderRandomTests.cpp
-					./Tests/EntityReadWriteTests.cpp
-					./Tests/EntityTests.cpp
-					./Tests/ItemTableTests.cpp
-					./Tests/ReadWriteTests.cpp
-					./Tests/SectionHierarchyReadWriteTests.cpp
-					./Tests/Tests.cpp 
-					./Tests/TypeTests.cpp 
-					./Tests/TestHelpers/random_vals.cpp 
-					./Tests/TestPackA/TestPackA.cpp 
-					)
-	target_include_directories( tests 
-								PUBLIC ${PROJECT_SOURCE_DIR}/Include
-								PUBLIC ${glm_SOURCE_DIR}
-								PUBLIC ${librocksha256_SOURCE_DIR}
-								PUBLIC ${ctle_SOURCE_DIR}
-								PUBLIC ${PROJECT_SOURCE_DIR}/Tests
-								)
-	target_link_libraries( 	tests 
-							gtest_main 
-							Rpcrt4
-							)
-
-# enable_testing()	
+	# if unit testing is enabeld add Test Directory
+	if(ENABLE_UNIT_TESTING)
+  		enable_testing()
+		add_subdirectory(Tests)
+	endif()
 endif()

@@ -2,6 +2,7 @@
 # Licensed under the MIT license https://github.com/Cooolrik/pds/blob/main/LICENSE
 
 from EntitiesHelpers import *
+import argparse
 
 v1_0 = Version( "v1_0", 
 	previousVersion = None, 
@@ -55,6 +56,11 @@ TestPackA = Package( "TestPackA",
 		] 
 	)
 
-hlp.run_module('PackageGenerator', TestPackA, "Latest" )
+def main():
+	parser = argparse.ArgumentParser(description="Code generation.")
+	parser.add_argument('--clang_format', action='store_true', help='Format generated code using clang.')
+	args = parser.parse_args()
+	hlp.run_module(name='PackageGenerator', package=TestPackA, defaultVersion="Latest", run_clang_format= args.clang_format )
 
-
+if __name__ == "__main__":
+    main()

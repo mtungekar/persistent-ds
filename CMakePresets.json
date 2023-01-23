@@ -1,0 +1,224 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "base",
+            "displayName": "Base",
+            "description": "Sets generator(Ninja), build, toolchain and install directory",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_COMPILE_WARNING_AS_ERROR": "ON"
+            }
+        },
+        {
+            "name": "windows",
+            "displayName": "Windows",
+            "description": "Default Windows x64 (Ninja)",
+            "inherits": [ "base" ],
+            "architecture":{
+                "strategy": "external",
+                "value": "x64"
+            },
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "cl",
+                "ENABLE_UNIT_TESTING" : "ON",
+                "ENABLE_PERFORMACE_TESTING" : "ON",
+                "C_STANDARD": "11",
+                "CXX_STANDARD": "14",
+                "MSVC_TOOLSET_VERSION": "143"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [ "Windows" ]
+                  }
+            }
+        },
+        {
+            "name": "windows-vs2022",
+            "displayName": "Windows VS2022",
+            "description": "Windows x64 (VS2022)",
+            "inherits": [ "base" ],
+            "generator": "Visual Studio 17 2022",
+            "architecture":{
+                "strategy": "set",
+                "value": "x64"
+            },
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "cl",
+                "ENABLE_UNIT_TESTING" : "ON",
+                "ENABLE_PERFORMACE_TESTING" : "ON",
+                "C_STANDARD": "11",
+                "CXX_STANDARD": "14",
+                "MSVC_TOOLSET_VERSION": "143"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [ "Windows" ]
+                  }
+            }
+        },
+        {
+            "name": "linux",
+            "displayName": "Linux x64",
+            "description": "Default Linux x64 (Clang).",
+            "inherits": [ "base" ],
+            "architecture":{
+                "strategy": "external",
+                "value": "x64"
+            },
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CAMKE_C_COMPILER" : "clang",
+                "ENABLE_UNIT_TESTING" : "ON",
+                "ENABLE_PERFORMACE_TESTING" : "ON",
+                "C_STANDARD": "11",
+                "CXX_STANDARD": "14"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [ "Linux" ]
+                  }
+            }
+        },
+        {
+            "name": "x64-win-debug",
+            "displayName": "Windows x64 Debug (Configure)",
+            "description": "Windows x64 Debug (Configure)",
+            "inherits": [ "windows" ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x64-win-release",
+            "displayName": "Windows x64 Release (Configure)",
+            "description": "Windows x64 Release (Configure)",
+            "inherits": [ "windows" ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "x64-linux-debug",
+            "displayName": "Linux x64 Debug (Configure)",
+            "description": "Linux x64 Debug (Configure)",
+            "inherits": [ "linux" ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x64-linux-release",
+            "displayName": "Linux x64 Release (Configure)",
+            "description": "Linux x64 Debug (Configure)",
+            "inherits": [ "linux" ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "core-build",
+            "description": "Inherits from env from base configuration",
+            "configurePreset": "base",
+            "hidden": true
+        },
+        {
+            "name": "clean-build",
+            "description": "Clean build",
+            "configurePreset": "core-build",
+            "hidden": true,
+            "cleanFirst": true
+        },
+        {
+            "name": "verbose-build",
+            "description": "Clean build with verbose output",
+            "configurePreset": "core-build",
+            "hidden": true,
+            "verbose": true,
+            "cleanFirst": true
+        },
+        {
+            "name": "x64-win-debug",
+            "displayName": "Windows x64 Debug (Build)",
+            "description": "Windows x64 Debug (Build)",
+            "configurePreset": "x64-win-debug",
+            "inherits":"verbose-build"
+        },
+        {
+            "name": "x64-win-release",
+            "displayName": "Windows x64 Release (Build)",
+            "description": "Windows x64 Release (Build)",
+            "configurePreset": "x64-win-release",
+            "inherits":"clean-build"
+        },
+        {
+            "name": "x64-linux-debug",
+            "displayName": "Linux x64 Debug (Build)",
+            "description": "Linux x64 Debug (Build)",
+            "configurePreset": "x64-linux-debug",
+            "inherits":"clean-build"
+        },
+        {
+            "name": "x64-linux-release",
+            "displayName": "Linux x64 Release (Build)",
+            "description": "Linux x64 Release (Build)",
+            "configurePreset": "x64-linux-release",
+            "inherits":"clean-build"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "x64-win-debug",
+            "displayName": "Windows Debug Tests",
+            "configurePreset": "x64-win-debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error", 
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "x64-win-release",
+            "displayName": "Windows Release Tests",
+            "configurePreset": "x64-win-release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error", 
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "x64-linux-debug",
+            "displayName": "Linux Debug Tests",
+            "configurePreset": "x64-linux-debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error", 
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "x64-linux-release",
+            "displayName": "Linux Release Tests",
+            "configurePreset": "x64-linux-release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error", 
+                "stopOnFailure": true
+            }
+        }
+    ]
+}

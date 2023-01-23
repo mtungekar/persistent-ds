@@ -27,7 +27,7 @@
 			bool operator<( const item_ref &rval ) const { return this->id_m < rval.id_m; }
 
 			// conversions to boolean (behaves like a pointer, true if non-null) 
-			operator bool() const { return this->id_m != uuid_zero; }
+			operator bool() const { return this->id_m.is_valid(); }
 			operator uuid() const { return this->id_m; }
 
 			// returns the "null" item_ref value 

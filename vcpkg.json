@@ -1,0 +1,11 @@
+{
+    "name": "ctle-dependencies",
+    "version": "0",
+    "dependencies": [
+        "vcpkg-tool-ninja",
+        "gtest",
+        "glm",
+        "ctle",
+        "picosha2"
+    ]
+}

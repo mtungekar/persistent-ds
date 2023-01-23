@@ -35,7 +35,7 @@ class AllocatorHashTable:
 					self.insert_into_table( f'&_dt_{variant_name}_ct_{cont.implementing_type}_DynamicTypeObject' , variant_id , cont.container_id )
 
 
-def DynamicTypes_inl():
+def DynamicTypes_inl(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -218,11 +218,11 @@ def DynamicTypes_inl():
 	# end of namespace
 	lines.append('    };')
 	lines.append('    };')
-	hlp.write_lines_to_file("../Include/pds/DynamicTypes.inl",lines)
+	hlp.write_lines_to_file("../Include/pds/DynamicTypes.inl",lines, run_clang_format)
 	
 
 
-def DynamicTypesTests_cpp():
+def DynamicTypesTests_cpp(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('#include "Tests.h"')
@@ -292,8 +292,9 @@ def DynamicTypesTests_cpp():
 	lines.append('        }')
 	lines.append('    }')
 
-	hlp.write_lines_to_file("../Tests/DynamicTypesTests.cpp",lines)	
+	hlp.write_lines_to_file("../Tests/DynamicTypesTests.cpp",lines, run_clang_format)	
 	
-def run():
-	DynamicTypes_inl()
-	DynamicTypesTests_cpp()
+def run(**kwargs):
+	run_clang_format = kwargs['run_clang_format']
+	DynamicTypes_inl(run_clang_format)
+	DynamicTypesTests_cpp(run_clang_format)

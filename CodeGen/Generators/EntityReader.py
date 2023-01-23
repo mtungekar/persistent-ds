@@ -3,7 +3,7 @@
 
 import CodeGeneratorHelpers as hlp
 
-def EntityReader_h():
+def EntityReader_h(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -78,9 +78,9 @@ def EntityReader_h():
 	#lines.append('		static_assert(false, "Error: EntityReader::Read template: The value type T cannot be serialized.");')
 	#lines.append('		}')
 	lines.append('	};')
-	hlp.write_lines_to_file("../Include/pds/EntityReader.h",lines)
+	hlp.write_lines_to_file("../Include/pds/EntityReader.h",lines,run_clang_format)
 
-def EntityReader_inl():
+def EntityReader_inl(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -280,8 +280,9 @@ def EntityReader_inl():
 				lines.append(f'')
 				
 	lines.append('	};')
-	hlp.write_lines_to_file("../Include/pds/EntityReader.inl",lines)
+	hlp.write_lines_to_file("../Include/pds/EntityReader.inl",lines,run_clang_format)
 
-def run():
-	EntityReader_h()
-	EntityReader_inl()
+def run(**kwargs):
+	run_clang_format = kwargs['run_clang_format']
+	EntityReader_h(run_clang_format)
+	EntityReader_inl(run_clang_format)

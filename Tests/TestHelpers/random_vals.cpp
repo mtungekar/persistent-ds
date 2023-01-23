@@ -89,7 +89,7 @@ template <> dmat4 random_value<dmat4>() { return dmat4(
 	double_rand(), double_rand(), double_rand(), double_rand()
 ) ; }
 
-template <> UUID random_value<UUID>() { return uuid_rand(); }
+template <> uuid random_value<uuid>() { return uuid_rand(); }
 
 template <> hash random_value<hash>() { return hash_rand(); }
 

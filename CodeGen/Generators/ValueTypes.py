@@ -4,7 +4,7 @@
 
 import CodeGeneratorHelpers as hlp
 
-def CombinedTypes_h():
+def CombinedTypes_h(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -51,9 +51,9 @@ def CombinedTypes_h():
 
 	# end of namespaces
 	lines.append('    };')
-	hlp.write_lines_to_file("../Include/pds/ValueTypes.h",lines)
+	hlp.write_lines_to_file("../Include/pds/ValueTypes.h",lines,run_clang_format)
 
-def CombinedTypes_inl():
+def CombinedTypes_inl(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -76,8 +76,10 @@ def CombinedTypes_inl():
 
 	# end of namespace
 	lines.append('    };')
-	hlp.write_lines_to_file("../Include/pds/ValueTypes.inl",lines)
+	hlp.write_lines_to_file("../Include/pds/ValueTypes.inl",lines,run_clang_format)
 	
-def run():
-	CombinedTypes_h()
-	CombinedTypes_inl()
+	
+def run(**kwargs):
+	run_clang_format = kwargs['run_clang_format']
+	CombinedTypes_h(run_clang_format)
+	CombinedTypes_inl(run_clang_format)

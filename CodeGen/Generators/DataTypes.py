@@ -25,7 +25,7 @@ def print_type_information_header( type , value , value_count ):
 	lines.append('')
 	return lines
 
-def DataTypes_h():
+def DataTypes_h(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -55,7 +55,6 @@ def DataTypes_h():
 		lines.append(f"\ttypedef std::uint{bit_size}_t u{bit_size};")
 	lines.append('')
 	lines.append(f"\ttypedef std::string string;")
-	lines.append(f"\ttypedef UUID uuid;")
 	lines.append(f"\ttypedef HASH hash;")
 	lines.append('')
 
@@ -83,9 +82,9 @@ def DataTypes_h():
 	lines.append('\tconst string string_zero;')
 	lines.append('\tconst string string_inf;')
 	lines.append('')
-	lines.append('\tconstexpr uuid uuid_zero = {0,0,0,{0,0,0,0,0,0,0,0}};')
-	lines.append('\tconstexpr uuid uuid_inf = {0,0,0,{0,0,0,0,0,0,0,0}};')
-	lines.append('\tconstexpr uuid uuid_sup = {0xffffffff,0xffff,0xffff,{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff}};')
+	lines.append('\tconstexpr uuid uuid_zero{};')
+	lines.append('\tconstexpr uuid uuid_inf{};')
+	lines.append('\tconstexpr uuid uuid_sup{"ffffffff-ffff-ffff-ffff-ffffffffffff"};')
 	lines.append('')
 	lines.append('\tconstexpr hash hash_zero = {0,0,0,0};')
 	lines.append('\tconstexpr hash hash_inf = {0,0,0,0};')
@@ -208,7 +207,7 @@ def DataTypes_h():
 	lines.append('    {')
 	lines.append('    std::size_t operator()(pds::item_ref const& val) const noexcept')
 	lines.append('        {')
-	lines.append('        return std::hash<UUID>{}( UUID( val ) );')
+	lines.append('        return std::hash<pds::uuid>{}( pds::uuid( val ) );')
 	lines.append('        }')
 	lines.append('    };')
 	lines.append('')
@@ -222,7 +221,7 @@ def DataTypes_h():
 	lines.append('    };')
 
 	# end of file
-	hlp.write_lines_to_file("../Include/pds/DataTypes.h",lines)
+	hlp.write_lines_to_file("../Include/pds/DataTypes.h",lines,run_clang_format)
 
 def print_type_information_source( type , value , value_count ):
 	lines = []
@@ -244,7 +243,7 @@ def print_type_information_source( type , value , value_count ):
 	lines.append('')
 	return lines
 
-def DataTypes_inl():
+def DataTypes_inl(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -295,9 +294,9 @@ def DataTypes_inl():
 		lines.extend(print_type_information_source(type,type,1))
 	lines.append('    };')
 
-	hlp.write_lines_to_file("../Include/pds/DataTypes.inl",lines)
+	hlp.write_lines_to_file("../Include/pds/DataTypes.inl",lines, run_clang_format)
 
-def DataValuePointers_h():
+def DataValuePointers_h(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -378,7 +377,7 @@ def DataValuePointers_h():
 	lines.append('// re-enalbe the warnings')
 	lines.append('#pragma warning( pop )')
 
-	hlp.write_lines_to_file("../Include/pds/DataValuePointers.h",lines)
+	hlp.write_lines_to_file("../Include/pds/DataValuePointers.h",lines, run_clang_format)
 
 # used by CreatePackageHeader to list all needed defines in pds
 def ListPackageHeaderDefines():
@@ -476,7 +475,8 @@ def ListPackageHeaderDefines():
 	#lines.append('\ttemplate <class _Ty> using clear_combined_type = pds::clear_combined_type<_Ty>;')
 	return lines
 
-def run():
-	DataTypes_h()
-	DataTypes_inl()
-	DataValuePointers_h()
+def run(**kwargs):
+	run_clang_format = kwargs['run_clang_format']
+	DataTypes_h(run_clang_format)
+	DataTypes_inl(run_clang_format)
+	DataValuePointers_h(run_clang_format)

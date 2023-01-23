@@ -9,6 +9,7 @@ x64
 *.user
 /build
 /out
+CMakeUserPresets.json
 
 /Include/pds/DataTypes.inl
 /Include/pds/DynamicTypes.inl
@@ -21,3 +22,9 @@ x64
 /Tests/TestPackB
 /Tests/TestPackC
 /CodeGen/.vscode
+
+build/
+out/
+install/
+vcpkg_installed/
+.devcontainer/

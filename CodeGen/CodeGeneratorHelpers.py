@@ -5,6 +5,7 @@ import copy
 import os
 from stat import S_IRUSR, S_IRGRP, S_IROTH, S_IWUSR
 import importlib
+import subprocess
 
 class BaseType:
 	def __init__(self,name,variants):
@@ -145,12 +146,12 @@ def generate_header():
 	lines.append('')
 	return lines
 
-def run_module( name , *args ):
-	print('Running: ' + name )
-	importlib.import_module('Generators.' + name ).run( *args )
+def run_module( **kwargs ):
+	print('Running: ' + kwargs['name'])
+	importlib.import_module('Generators.' + kwargs['name'] ).run( **kwargs )
 	print('')
 
-def write_lines_to_file( path , lines ):
+def write_lines_to_file( path , lines, format_using_clang=False ):
 	# make into one long string
 	new_text = ''
 	for line in lines:
@@ -178,5 +179,17 @@ def write_lines_to_file( path , lines ):
 		f.write(new_text)
 		f.close()
 
+	if format_using_clang:
+		run_clang_format(path)
+
 	# change mode of file to readonly
 	os.chmod(path, S_IRUSR|S_IRGRP|S_IROTH)
+
+
+def run_cmd(cmd,*args):
+	subprocess.check_call([cmd]+list(args),stderr=subprocess.STDOUT, shell=True)
+
+def run_clang_format(path):
+	print( '\tClang formatting: ' + path)
+	executable = 'clang-format.exe'
+	run_cmd(executable,'-i',path)

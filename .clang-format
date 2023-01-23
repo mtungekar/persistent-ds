@@ -1,0 +1,18 @@
+# We'll use defaults from the LLVM style, but with 4 columns indentation.
+ColumnLimit: 80
+BasedOnStyle: Microfot
+IndentWidth: 4
+TabWidth: 4
+Language: Cpp
+Standard: c++14
+AlignAfterOpenBracket: Align
+AlignOperands: true
+AllowAllArgumentsOnNextLine: true
+AllowAllConstructorInitializersOnNextLine: true
+AllowShortBlocksOnASingleLine: Always
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: WithoutElse
+BinPackArguments: true
+BinPackParameters: true
+BreakBeforeBraces: Attach
+BraceBreakingStyle: Whitesmiths

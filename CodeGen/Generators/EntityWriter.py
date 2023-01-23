@@ -3,7 +3,7 @@
 
 import CodeGeneratorHelpers as hlp
 
-def EntityWriter_h():
+def EntityWriter_h(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -76,9 +76,9 @@ def EntityWriter_h():
 	#lines.append('		static_assert(false, "Error: EntityWriter::Write template: The value type T cannot be serialized.");')
 	#lines.append('		}')
 	lines.append('	};')
-	hlp.write_lines_to_file("../Include/pds/EntityWriter.h",lines)
+	hlp.write_lines_to_file("../Include/pds/EntityWriter.h",lines,run_clang_format)
 
-def EntityWriter_inl():
+def EntityWriter_inl(run_clang_format):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
@@ -227,8 +227,9 @@ def EntityWriter_inl():
 		implementing_type = type[1]
 
 	lines.append('	};')
-	hlp.write_lines_to_file("../Include/pds/EntityWriter.inl",lines)
+	hlp.write_lines_to_file("../Include/pds/EntityWriter.inl",lines,run_clang_format)
 
-def run():
-	EntityWriter_h()
-	EntityWriter_inl()
+def run(**kwargs):
+	run_clang_format = kwargs['run_clang_format']
+	EntityWriter_h(run_clang_format)
+	EntityWriter_inl(run_clang_format)

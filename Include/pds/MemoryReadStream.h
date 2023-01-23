@@ -196,15 +196,12 @@ namespace pds
 		for( u64 i = 0; i < count; ++i )
 			{
 			// we always store uuids big endian (the order which the hex values are printed when printing a UUID), regardless of machine, so read in the 16 bytes and assign
-			u8 rawbytes[16];
-			if( this->ReadValues<u8>( rawbytes, 16 ) != 16 )
+			std::array<u8,16> rawbytes;
+			if( this->ReadValues<u8>( rawbytes.data(), rawbytes.size() ) != 16 )
 				return i; // could not read further, return number of succesful reads
-
+			dest[i] = uuid(rawbytes);
 			// assign to the values
-			dest[i].Data1 = value_from_bigendian<u32>( &rawbytes[0] );
-			dest[i].Data2 = value_from_bigendian<u16>( &rawbytes[4] );
-			dest[i].Data3 = value_from_bigendian<u16>( &rawbytes[6] );
-			memcpy( dest[i].Data4, &rawbytes[8], 8 );
+			//memcpy( dest[i]bytes().date.data(), &rawbytes[0], 16 );
 			}
 
 		return count;

@@ -244,17 +244,8 @@ namespace pds
 
 		for( u64 i = 0; i < count; ++i )
 			{
-			u8 rawbytes[16];
-
-			// we always store UUIDs big endian (the order which the hex values are printed when printing a UUID), regardless of machine, so write the 16 bytes
-			// assign the values to the raw big endian byte array 
-			bigendian_from_value<u32>( &rawbytes[0] , src[i].Data1 );
-			bigendian_from_value<u16>( &rawbytes[4] , src[i].Data2 );
-			bigendian_from_value<u16>( &rawbytes[6] , src[i].Data3 );
-			memcpy( &rawbytes[8] , src[i].Data4, 8 );
-
 			// write raw bytes
-			this->WriteValues<u8>( rawbytes, sizeof(rawbytes) );
+			this->WriteValues<u8>( src[i].bytes().data(), src->bytes().size() );
 			}
 		}
 

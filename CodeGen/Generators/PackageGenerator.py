@@ -8,7 +8,7 @@ import CodeGeneratorHelpers as hlp
 from ctypes import c_ulonglong 
 from ctypes import c_ubyte
 
-def CreateItemHeader(item: Item):
+def CreateItemHeader(item: Item, run_clang_format):
 	packageName = item.Package.Name
 	versionName = item.Version.Name
 
@@ -175,7 +175,7 @@ def CreateItemHeader(item: Item):
 		lines.append('    };')
 		lines.append('    };')		
 
-	hlp.write_lines_to_file(f"{item.Package.Path}/{versionName}/{versionName}_{item.Name}.h",lines)
+	hlp.write_lines_to_file(f"{item.Package.Path}/{versionName}/{versionName}_{item.Name}.h",lines, run_clang_format)
 
 def ImplementClearCall(item,var):
 	lines = []
@@ -418,7 +418,7 @@ def ImplementFromPreviousCall(item:Item , mapping:Mapping):
 	return lines
 
 
-def CreateItemSource(item):
+def CreateItemSource(item, run_clang_format):
 	packageName = item.Package.Name
 	versionName = item.Version.Name
 
@@ -602,7 +602,7 @@ def CreateItemSource(item):
 
 	lines.append('    };')
 	lines.append('    };')	
-	hlp.write_lines_to_file(f"{item.Package.Path}/{versionName}/{versionName}_{item.Name}.inl",lines)
+	hlp.write_lines_to_file(f"{item.Package.Path}/{versionName}/{versionName}_{item.Name}.inl",lines, run_clang_format)
 
 
 # static and constant hash table for entity lookup, (must be larger than the number of entities to add)
@@ -657,7 +657,7 @@ class EntityHashTable:
 				if item.IsEntity and not item.IdenticalToPreviousVersion and not item.IsDeleted:
 					self.insert_into_table( package.Name , version.Name , item.Name );
 
-def CreatePackageHandler_inl( package: Package ):
+def CreatePackageHandler_inl( package: Package, run_clang_format ):
 	packageName = package.Name
 
 	lines = []
@@ -822,13 +822,13 @@ def CreatePackageHandler_inl( package: Package ):
 
 	# end of namespace
 	lines.append('\t};')
-	hlp.write_lines_to_file(f"{package.Path}/{packageName}PackageHandler.inl",lines)
+	hlp.write_lines_to_file(f"{package.Path}/{packageName}PackageHandler.inl",lines, run_clang_format)
 
 
 from .DataTypes import ListPackageHeaderDefines
 
 # create a header for the package, which has all needed references and definitions
-def CreatePackageHeader( package ):
+def CreatePackageHeader( package, run_clang_format ):
 	packageName = package.Name
 
 	lines = []
@@ -852,9 +852,9 @@ def CreatePackageHeader( package ):
 	lines.append('\tconst pds::EntityHandler::PackageRecord *GetPackageRecord();')
 	lines.append('\t};')
 
-	hlp.write_lines_to_file(f"{package.Path}/pdsImportsAndDefines.h",lines)
+	hlp.write_lines_to_file(f"{package.Path}/pdsImportsAndDefines.h",lines, run_clang_format)
 
-def CreatePackageSourceFile( package: Package ):
+def CreatePackageSourceFile( package: Package, run_clang_format ):
 	packageName = package.Name
 
 	lines = []
@@ -887,9 +887,9 @@ def CreatePackageSourceFile( package: Package ):
 	lines.append('// Include the package handler for this package')
 	lines.append(f'#include "{packageName}PackageHandler.inl"')
 
-	hlp.write_lines_to_file(f"{package.Path}/{packageName}.cpp",lines)
+	hlp.write_lines_to_file(f"{package.Path}/{packageName}.cpp",lines, run_clang_format)
 
-def CreateDefaultVersionReferencesAndHeaders( version: Version ):
+def CreateDefaultVersionReferencesAndHeaders( version: Version, run_clang_format ):
 	package = version.Package
 
 	for item in version.Items:
@@ -911,9 +911,9 @@ def CreateDefaultVersionReferencesAndHeaders( version: Version ):
 			lines.append(f'\tusing {item.Name} = {implementVersionName}::{item.Name};' )
 			lines.append('\t}')
 
-			hlp.write_lines_to_file(f"{package.Path}/{item.Name}.h",lines)
+			hlp.write_lines_to_file(f"{package.Path}/{item.Name}.h",lines, run_clang_format)
 
-def FindAndCreateDefaultVersionReferencesAndHeaders( package: Package , defaultVersion:str ):
+def FindAndCreateDefaultVersionReferencesAndHeaders( package: Package , defaultVersion:str, run_clang_format ):
 	# if we want default version headers and references directly in the Package
 	if defaultVersion != None:
 		if defaultVersion == "Latest":
@@ -933,7 +933,7 @@ def FindAndCreateDefaultVersionReferencesAndHeaders( package: Package , defaultV
 					if hasFoundALatest:
 						print('Error: The package has "Latest" set as selected default version, but there are more than one leaf versions.')
 						exit(1)
-					CreateDefaultVersionReferencesAndHeaders( version )
+					CreateDefaultVersionReferencesAndHeaders( version, run_clang_format )
 					hasFoundALatest = True
 					break
 
@@ -947,7 +947,7 @@ def FindAndCreateDefaultVersionReferencesAndHeaders( package: Package , defaultV
 			hasFoundVersion = False
 			for version in package.Versions:
 				if version.Name == defaultVersion:
-					CreateDefaultVersionReferencesAndHeaders( version )
+					CreateDefaultVersionReferencesAndHeaders( version, run_clang_format )
 					hasFoundVersion = True
 					break
 			
@@ -957,21 +957,23 @@ def FindAndCreateDefaultVersionReferencesAndHeaders( package: Package , defaultV
 				exit(1)
 
 
-def run( package: Package, defaultVersion:str = None ):
-	
+def run(**kwargs ):
+	package = kwargs['package']
+	defaultVersion = kwargs['defaultVersion']
+	run_clang_format = kwargs['run_clang_format']
 	os.makedirs(package.Path, exist_ok=True)
 	for version in package.Versions:
 		os.makedirs(package.Path + '/' + version.Name , exist_ok=True)
 
-	CreatePackageHeader( package )
-	CreatePackageSourceFile( package )
-	CreatePackageHandler_inl( package )
+	CreatePackageHeader( package, run_clang_format )
+	CreatePackageSourceFile( package, run_clang_format )
+	CreatePackageHandler_inl( package, run_clang_format )
 	
 	# generate all items
 	for version in package.Versions:
 		for item in version.Items:
 			if not item.IsDeleted:
-				CreateItemHeader( item )
-				CreateItemSource( item )
+				CreateItemHeader( item, run_clang_format )
+				CreateItemSource( item, run_clang_format )
 	
-	FindAndCreateDefaultVersionReferencesAndHeaders( package, defaultVersion )
+	FindAndCreateDefaultVersionReferencesAndHeaders( package, defaultVersion, run_clang_format )

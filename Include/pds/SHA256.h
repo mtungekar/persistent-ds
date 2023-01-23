@@ -4,15 +4,18 @@
 #pragma once
 
 #include "pds.h"
-
+#include "picosha2.h"
 #include <vector>
+#include <memory>
 
 namespace pds
 	{
 	class SHA256
 		{
 		private:
-			void *MDData = nullptr;
+			//void *MDData = nullptr;
+			std::unique_ptr<u8[]> MData;
+			picosha2::hash256_one_by_one Hasher;
 
 		public:
 			SHA256( const u8 *Data = nullptr , size_t DataLength = 0 );

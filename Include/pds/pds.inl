@@ -104,19 +104,7 @@ template <> std::string pds::value_to_hex_string<u64>( u64 value )
 
 template <> std::string pds::value_to_hex_string<uuid>( uuid value )
 	{
-	std::string ret;
-
-	ret += value_to_hex_string<u32>( value.Data1 );
-	ret += "-";
-	ret += value_to_hex_string<u16>( value.Data2 );
-	ret += "-";
-	ret += value_to_hex_string<u16>( value.Data3 );
-	ret += "-";
-	ret += bytes_to_hex_string( value.Data4, 2 );
-	ret += "-";
-	ret += bytes_to_hex_string( &value.Data4[2], 6 );
-
-	return ret;
+	return value.str();
 	}
 
 template <> std::string pds::value_to_hex_string<hash>( hash value )
@@ -188,12 +176,7 @@ template <> uuid pds::hex_string_to_value<uuid>( const char *hex_string )
 		&& hex_string[18] == '-'
 		&& hex_string[23] == '-', Status::EParam, "hex_string_to_value ill-formated hex_string" );
 
-	uuid value;
-	value.Data1 = hex_string_to_value<u32>( &hex_string[0] );
-	value.Data2 = hex_string_to_value<u16>( &hex_string[9] );
-	value.Data3 = hex_string_to_value<u16>( &hex_string[14] );
-	hex_string_to_bytes( &value.Data4[0], &hex_string[19] , 2 );
-	hex_string_to_bytes( &value.Data4[2], &hex_string[24] , 6 );
+	uuid value(hex_string);
 	return value;
 	}
 
@@ -225,12 +208,10 @@ std::wstring pds::full_path( const std::wstring &path )
 item_ref item_ref::make_ref()
 	{
 	item_ref ref;
-
-	RPC_STATUS stat = ::UuidCreate( &ref.id_m );
-	if( stat != RPC_S_OK
-		|| ref.id_m == uuid_zero )
+	ref.id_m = uuid::new_guid();
+	if( !ref.id_m.is_valid() )
 		{
-		throw std::exception( "Failed to generate a uuid through ::UuidCreate()" );
+		throw std::exception( "Failed to generate a uuid through uuid::new_guid()" );
 		}
 
 	return ref;
