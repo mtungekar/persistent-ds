@@ -6,10 +6,21 @@
 
 // directly include librock_sha256.c from the Dependencies folder
 // silence warning we can't control
+#ifdef MSC_VER
 #pragma warning( push )
-#pragma warning( disable : 4456 )
+#pragma warning( disable : 4201 )
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#endif
+
 #include <librock_sha256.c>
+
+// re-enable warnings again
+#ifdef MSC_VER
 #pragma warning( pop )
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 using namespace pds;
 

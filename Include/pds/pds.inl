@@ -4,9 +4,11 @@
 
 #include <pds/pds.h>
 
+#ifdef MSC_VER
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Rpc.h>
+#endif
 
 #include "SHA256.h"
 #include "DynamicTypes.h"

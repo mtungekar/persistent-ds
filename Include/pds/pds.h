@@ -9,6 +9,8 @@
 #include <future>
 #include <vector>
 
+#include <uuid.h>
+
 #include <ctle/thread_safe_map.h>
 #include <ctle/readers_writer_lock.h>
 

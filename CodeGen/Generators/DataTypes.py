@@ -305,9 +305,8 @@ def DataValuePointers_h():
 	lines.append('')
 	lines.append('#include <pds/pds.h>')
 	lines.append('')
-	lines.append('// include glm references, silence warnings we can\'t control')
-	lines.append('#pragma warning( push )')
-	lines.append('#pragma warning( disable : 4201 )')
+
+	lines.extend( hlp.generate_push_and_disable_warnings( [4201] , [] ) )
 	lines.append('')
 	lines.append('#include <glm/gtc/type_ptr.hpp>')
 	lines.append('')
@@ -373,11 +372,11 @@ def DataValuePointers_h():
 
 	# end of namespace
 	lines.append('    };')
+	lines.append('')
 
 	# reenable warning
-	lines.append('// re-enalbe the warnings')
-	lines.append('#pragma warning( pop )')
-
+	lines.extend( hlp.generate_pop_warnings() )
+	
 	hlp.write_lines_to_file("../Include/pds/DataValuePointers.h",lines)
 
 # used by CreatePackageHeader to list all needed defines in pds
