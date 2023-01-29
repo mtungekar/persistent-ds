@@ -5,8 +5,8 @@
 		private:
 			uuid id_m;
 
-			// set entity reference, only allow this internally and from EntityReader
-			item_ref( const uuid &id ) : id_m( id ) {};
+			// create from uuid, only allow this internally and from EntityReader
+			static item_ref from_uuid( const uuid &id ) { item_ref val; val.id_m = id; return val; }
 			friend class EntityReader;
 
 		public:
@@ -33,9 +33,9 @@
 			// returns the "null" item_ref value 
 			static const item_ref &null() { static item_ref null_id; return null_id; }
 			
-			// inf and sup values, for comparing
-			static item_ref &_inf() { static item_ref inf_id(uuid_inf); return inf_id; }
-			static item_ref &_sup() { static item_ref sup_id(uuid_sup); return sup_id; }
+			//// inf and sup values, for comparing
+			static item_ref &_inf() { static item_ref inf_id = from_uuid(uuid_inf); return inf_id; }
+			static item_ref &_sup() { static item_ref sup_id = from_uuid(uuid_sup); return sup_id; }
 		};
 
 	inline std::ostream &operator<<( std::ostream &os, const item_ref &ref )

@@ -20,7 +20,7 @@ FetchContent_Declare(
 )
 
 # librocksha256 
-FetchContent_Declare(
+FetchContent_Declare( 
 	librocksha256
 	GIT_REPOSITORY https://github.com/forrestcavalier/librock_sha256.git
 	GIT_TAG		   387f4cfff7c5913bcbeaf4c1c1f53f657cc4a6d0
@@ -98,12 +98,12 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 
 		./Tests/DirectedGraphTests.cpp
 		./Tests/DynamicTypesTests.cpp
-		# ./Tests/EntityReaderRandomTests.cpp
-		# ./Tests/EntityReadWriteTests.cpp
-		# ./Tests/EntityTests.cpp
-		# ./Tests/ItemTableTests.cpp
-		# ./Tests/ReadWriteTests.cpp
-		# ./Tests/SectionHierarchyReadWriteTests.cpp
+		./Tests/EntityReaderRandomTests.cpp
+		./Tests/EntityReadWriteTests.cpp
+		./Tests/EntityTests.cpp
+		./Tests/ItemTableTests.cpp
+		./Tests/ReadWriteTests.cpp
+		./Tests/SectionHierarchyReadWriteTests.cpp
 		
 		./Tests/TypeTests.cpp 
 		./Tests/TestHelpers/random_vals.cpp 

@@ -47,26 +47,26 @@ def EntityWriter_h():
 	lines.append('')
 	
 	# print the base types
-	for basetype in hlp.base_types:
-		type_name = 'VT_' + basetype.name
-		lines.append('            // ' + type_name )
-		for type_impl in basetype.variants:
-			type_impl_name = type_impl.implementing_type
-			lines.append('            //template <> bool Write<' + type_impl_name + '>( const char *key, const u8 key_length, const ' + type_impl_name + ' &value );')
-			lines.append('            //template <> bool Write<optional_value<' + type_impl_name + '>>( const char *key, const u8 key_length, const optional_value<' + type_impl_name + '> &value );')
-		lines.append('')
-
-	# print the array types
-	for basetype in hlp.base_types:
-		type_name = 'VT_Array_' + basetype.name
-		lines.append('            // ' + type_name )
-		for type_impl in basetype.variants:
-			type_impl_name = type_impl.implementing_type
-			lines.append('            //template <> bool Write<std::vector<' + type_impl_name + '>>( const char *key, const u8 key_length, const std::vector<' + type_impl_name + '> &value );')
-			lines.append('            //template <> bool Write<optional_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, const optional_vector<' + type_impl_name + '> &value );')
-			lines.append('            //template <> bool Write<idx_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, const idx_vector<' + type_impl_name + '> &value );')
-			lines.append('            //template <> bool Write<optional_idx_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, const optional_idx_vector<' + type_impl_name + '> &value );')
-		lines.append('')
+	#for basetype in hlp.base_types:
+	#	type_name = 'VT_' + basetype.name
+	#	lines.append('            // ' + type_name )
+	#	for type_impl in basetype.variants:
+	#		type_impl_name = type_impl.implementing_type
+	#		lines.append('            //template <> bool Write<' + type_impl_name + '>( const char *key, const u8 key_length, const ' + type_impl_name + ' &value );')
+	#		lines.append('            //template <> bool Write<optional_value<' + type_impl_name + '>>( const char *key, const u8 key_length, const optional_value<' + type_impl_name + '> &value );')
+	#	lines.append('')
+	#
+	## print the array types
+	#for basetype in hlp.base_types:
+	#	type_name = 'VT_Array_' + basetype.name
+	#	lines.append('            // ' + type_name )
+	#	for type_impl in basetype.variants:
+	#		type_impl_name = type_impl.implementing_type
+	#		lines.append('            //template <> bool Write<std::vector<' + type_impl_name + '>>( const char *key, const u8 key_length, const std::vector<' + type_impl_name + '> &value );')
+	#		lines.append('            //template <> bool Write<optional_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, const optional_vector<' + type_impl_name + '> &value );')
+	#		lines.append('            //template <> bool Write<idx_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, const idx_vector<' + type_impl_name + '> &value );')
+	#		lines.append('            //template <> bool Write<optional_idx_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, const optional_idx_vector<' + type_impl_name + '> &value );')
+	#	lines.append('')
 
 	lines.append('		};')
 	lines.append('')

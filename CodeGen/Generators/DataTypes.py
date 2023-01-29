@@ -211,7 +211,7 @@ def DataTypes_h():
 	lines.append('    {')
 	lines.append('    std::size_t operator()(pds::item_ref const& val) const noexcept')
 	lines.append('        {')
-	lines.append('        return std::hash<ctle::uuid>{}( ctle::uuid( val ) );')
+	lines.append('        return std::hash<ctle::uuid>{}( val );')
 	lines.append('        }')
 	lines.append('    };')
 	lines.append('')

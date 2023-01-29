@@ -55,7 +55,7 @@ std::string pds::value_to_hex_string( hash value )
 
 item_ref item_ref::make_ref()
 	{
-	return item_ref(uuid::generate());
+	return item_ref::from_uuid(uuid::generate());
 	}
 
 #ifdef _MSC_VER
