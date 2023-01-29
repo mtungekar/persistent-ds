@@ -58,6 +58,9 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		RESULT_VARIABLE 	py_result
 	)
 	message(STATUS "Result of GenerateTestPacks.py: ${py_result}")
+	
+	# c++14
+	set (CMAKE_CXX_STANDARD 17)
 
 	# lots of warnings and all warnings as errors
 	# big object files
@@ -144,16 +147,10 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		PUBLIC ${PROJECT_SOURCE_DIR}/Tests	
 		)
 
-	if(MSVC)								
-		target_link_libraries( 	tests 
-								gtest_main 
-								Rpcrt4
-								)
-	else()
-		target_link_libraries( 	tests 
-								gtest_main 
-								)
-	endif()
+	target_link_libraries( 	
+		tests 
+		gtest_main 
+		)
 
 # enable_testing()	
 endif()

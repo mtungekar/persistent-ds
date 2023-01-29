@@ -155,7 +155,7 @@ def generate_push_and_disable_warnings( vswarns , gccwarns , comment = 'disable 
 	lines.append('#elif defined(__GNUC__)')
 	lines.append('#pragma GCC diagnostic push')
 	for w in gccwarns:
-		lines.append(f'#pragma GCC diagnostic ignored "{w}" )')	
+		lines.append(f'#pragma GCC diagnostic ignored "{w}"')	
 	lines.append('#endif')
 	return lines
 

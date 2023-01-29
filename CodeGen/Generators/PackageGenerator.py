@@ -429,7 +429,10 @@ def CreateItemSource(item):
 	lines = []
 	lines.extend( hlp.generate_header() )
 	lines.append('')
+
+	#lines.extend( hlp.generate_push_and_disable_warnings( [] , ["-Wno-volatile"] ) )
 	lines.append('#include <glm/glm.hpp>')
+	#lines.extend( hlp.generate_pop_warnings() )
 	lines.append('')	
 	lines.append(f'#include <pds/EntityWriter.h>')
 	lines.append(f'#include <pds/EntityReader.h>')
