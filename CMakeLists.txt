@@ -69,33 +69,59 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	endif()
 	set( CMAKE_DEBUG_POSTFIX _d )
 	
-	## SystemTest run full system tests
-	#add_executable( 
-	#	systemtest
-	#	./Tests/SystemTest.cpp 
-	#	./Tests/TestPackA/TestPackA.cpp 
-	#	)	
+	# SystemTest run full system tests
+	add_executable( 
+		systemtest
+		./Tests/SystemTest.cpp 
+		./Tests/TestPackA/TestPackA.cpp 
+
+		# all pds files
+		./Include/pds/BidirectionalMap.h
+		./Include/pds/DataTypes.h
+		./Include/pds/DataTypes.inl
+		./Include/pds/DataValuePointers.h
+		./Include/pds/DirectedGraph.h
+		./Include/pds/DynamicTypes.h
+		./Include/pds/DynamicTypes.inl
+		./Include/pds/EntityReader.h
+		./Include/pds/EntityReader.inl
+		./Include/pds/EntityReaderTemplates.inl
+		./Include/pds/EntityValidator.h
+		./Include/pds/EntityWriter.h
+		./Include/pds/EntityWriter.inl
+		./Include/pds/EntityWriterTemplates.inl
+		./Include/pds/IndexedVector.h
+		./Include/pds/ItemTable.h
+		./Include/pds/Log.h
+		./Include/pds/MemoryReadStream.h
+		./Include/pds/MemoryWriteStream.h
+		./Include/pds/pds.h
+		./Include/pds/pds.inl
+		./Include/pds/SHA256.h
+		./Include/pds/SHA256.inl
+		./Include/pds/ValueTypes.h
+		./Include/pds/ValueTypes.inl
+		./Include/pds/Varying.h
+		./Include/pds/Varying.inl
+		)	
 # 
-	#target_include_directories(	
-	#	systemtest 
-	#	PUBLIC ${PROJECT_SOURCE_DIR}/Include
-	#	PUBLIC ${glm_SOURCE_DIR}
-	#	PUBLIC ${librocksha256_SOURCE_DIR}
-	#	PUBLIC ${ctle_SOURCE_DIR}
-	#	PUBLIC ${PROJECT_SOURCE_DIR}/Tests 
-	#	) 
+	target_include_directories(	
+		systemtest 
+		PUBLIC ${PROJECT_SOURCE_DIR}/Include
+		PUBLIC ${glm_SOURCE_DIR}
+		PUBLIC ${librocksha256_SOURCE_DIR}
+		PUBLIC ${ctle_SOURCE_DIR}
+		PUBLIC ${PROJECT_SOURCE_DIR}/Tests 
+		) 
 #
-	#target_link_libraries( 	
-	#	systemtest  
-	#	Rpcrt4
-	#	)
+	target_link_libraries( 	
+		systemtest 
+		)
 
 	# Tests run unit tests and other specific tests
 	add_executable( 
 		tests
-
 		./Tests/Tests.cpp 
-
 		./Tests/DirectedGraphTests.cpp
 		./Tests/DynamicTypesTests.cpp
 		./Tests/EntityReaderRandomTests.cpp
@@ -104,7 +130,6 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		./Tests/ItemTableTests.cpp
 		./Tests/ReadWriteTests.cpp
 		./Tests/SectionHierarchyReadWriteTests.cpp
-		
 		./Tests/TypeTests.cpp 
 		./Tests/TestHelpers/random_vals.cpp 
 		./Tests/TestPackA/TestPackA.cpp 

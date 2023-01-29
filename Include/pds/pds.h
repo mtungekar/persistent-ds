@@ -3,6 +3,12 @@
 
 #pragma once
 
+#ifdef PDS_IMPLEMENTATION
+#ifndef PDS_DONT_IMPLEMENT_CTLE
+#define CTLE_IMPLEMENTATION
+#endif
+#endif
+
 #include <utility>
 #include <map>
 #include <unordered_map>
@@ -183,8 +189,8 @@ namespace pds
 	using ctle::bytes_to_hex_string;
 	using ctle::hex_string_to_bytes;
 	using ctle::value_to_hex_string;
-	using ctle::hex_string_to_value;
 
+	template<class _Ty> _Ty hex_string_to_value( const char *str ) { return ctle::hex_string_to_value<_Ty>(str); }
 	std::string value_to_hex_string( hash value );
 
 	// converts file path in wstring to an absolute or full file path 
@@ -256,3 +262,7 @@ namespace pds
 		};
 
 	};
+
+#ifdef PDS_IMPLEMENTATION
+#include "pds.inl"
+#endif
