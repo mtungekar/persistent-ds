@@ -206,7 +206,6 @@ namespace pds
 			static bool Read( _MgmCl &obj , EntityReader &reader )
 				{
 				size_t map_size = {};
-				typename _MgmCl::iterator it = {};
 
 				// read the roots 
 				std::vector<_Ty> roots;

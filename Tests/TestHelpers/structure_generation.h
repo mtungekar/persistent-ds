@@ -35,14 +35,14 @@ size_t GenerateRandomItemTable( Dict &random_dict , size_t minc = 0, size_t maxc
 
 	for( size_t i = 0; i < dict_size; ++i )
 		{
-		typename Dict::key_type key = random_value<Dict::key_type>();
+		typename Dict::key_type key = random_value<typename Dict::key_type>();
 
 		// if zero is not allowed, keep generating until we have non-zero
 		if( Dict::type_no_zero_keys )
 			{
 			while( key == data_type_information<typename Dict::key_type>::zero )
 				{
-				key = random_value<Dict::key_type>();
+				key = random_value<typename Dict::key_type>();
 				}
 			}
 

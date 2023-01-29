@@ -74,7 +74,7 @@ TEST( DirectedGraphTests, DirectedGraphAcyclicTest )
 	validator.ClearErrorCount();
 	Graph::MF::Validate( dg, validator );
 	EXPECT_NE( validator.GetErrorCount() , uint(0) );
-	EXPECT_EQ( validator.GetErrorIds() , ValidationError::InvalidSetup );
+	EXPECT_TRUE( validator.GetErrorIds() == ValidationError::InvalidSetup );
 	}
 
 TEST( DirectedGraphTests, DirectedGraphSingleRootTest )
@@ -99,7 +99,7 @@ TEST( DirectedGraphTests, DirectedGraphSingleRootTest )
 	validator.ClearErrorCount();
 	Graph::MF::Validate( dg, validator );
 	EXPECT_NE( validator.GetErrorCount() , uint(0) );
-	EXPECT_EQ( validator.GetErrorIds() , ValidationError::InvalidCount );
+	EXPECT_TRUE( validator.GetErrorIds() == ValidationError::InvalidCount );
 	}
 
 TEST( DirectedGraphTests, DirectedGraphRootedTest )

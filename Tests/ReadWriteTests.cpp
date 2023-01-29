@@ -38,7 +38,7 @@ TEST( ReadWriteTests , MemoryWriteReadStream )
 		MemoryWriteStream *ws = new MemoryWriteStream();
 		ws->SetFlipByteOrder( (pass_index & 0x1) != 0 );
 
-		for( int i = 0; i < num_values; ++i )
+		for( uint i = 0; i < num_values; ++i )
 			{
 			int item_type = rand() % 8;
 			order[i] = item_type;
@@ -85,7 +85,7 @@ TEST( ReadWriteTests , MemoryWriteReadStream )
 		// read back everything in the same order
 		MemoryReadStream *rs = new MemoryReadStream( memdata.data(), expected_size );
 		rs->SetFlipByteOrder( (pass_index & 0x1) != 0 );
-		for( int i = 0; i < num_values; ++i )
+		for( uint i = 0; i < num_values; ++i )
 			{
 			int item_type = order[i];
 
