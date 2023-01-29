@@ -197,7 +197,7 @@ TEST( TypeTests , Test_entity_ref )
 	EXPECT_TRUE( !ref );
 	hash val = ref;
 	EXPECT_EQ( val , hash_zero );
-	EXPECT_EQ( val , entity_ref::null() );
+	EXPECT_EQ( entity_ref(val) , entity_ref::null() );
 	EXPECT_EQ( ref , entity_ref() );
 
 	entity_ref ref2 = random_value<hash>();

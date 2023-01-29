@@ -58,9 +58,6 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		RESULT_VARIABLE 	py_result
 	)
 	message(STATUS "Result of GenerateTestPacks.py: ${py_result}")
-	
-	# c++14
-	set (CMAKE_CXX_STANDARD 17)
 
 	# lots of warnings and all warnings as errors
 	# big object files
