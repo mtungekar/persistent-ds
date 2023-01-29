@@ -16,7 +16,7 @@ FetchContent_Declare(
 FetchContent_Declare(
 	ctle
 	GIT_REPOSITORY https://github.com/Cooolrik/ctle.git
-	GIT_TAG		   main
+	GIT_TAG		   main 
 )
 
 # librocksha256 

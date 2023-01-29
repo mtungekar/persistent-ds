@@ -40,7 +40,7 @@
 
 	inline std::ostream &operator<<( std::ostream &os, const item_ref &ref )
 		{
-		return os << uuid( ref );
+		return os << ctle::value_to_hex_string<uuid>(ref);
 		}
 
 	const item_ref item_ref_zero = item_ref::null();

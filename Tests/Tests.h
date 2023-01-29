@@ -8,7 +8,7 @@
 #include <pds/pds.h>
 
 // silence warnings which we can't control
-#ifdef MSC_VER
+#ifdef _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4201 )
 #pragma warning( disable : 4127 )

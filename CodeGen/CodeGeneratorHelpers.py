@@ -148,7 +148,7 @@ def generate_header():
 def generate_push_and_disable_warnings( vswarns , gccwarns , comment = 'disable warnings in code we cannot control' ):
 	lines = []
 	lines.append(f'// {comment}')
-	lines.append('#ifdef MSC_VER')
+	lines.append('#ifdef _MSC_VER')
 	lines.append('#pragma warning( push )')
 	for w in vswarns:
 		lines.append(f'#pragma warning( disable : {w} )')
@@ -162,7 +162,7 @@ def generate_push_and_disable_warnings( vswarns , gccwarns , comment = 'disable 
 def generate_pop_warnings( comment = 're-enable warnings again' ):
 	lines = []
 	lines.append(f'// {comment}')
-	lines.append('#ifdef MSC_VER')
+	lines.append('#ifdef _MSC_VER')
 	lines.append('#pragma warning( pop )')
 	lines.append('#elif defined(__GNUC__)')
 	lines.append('#pragma GCC diagnostic pop')

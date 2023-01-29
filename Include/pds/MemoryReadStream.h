@@ -193,21 +193,11 @@ namespace pds
 		{ 
 		static_assert(sizeof(uuid)==16, "Invalid size of uuid struct, needs to be exactly 16 bytes.");
 
-		for( u64 i = 0; i < count; ++i )
-			{
-			// we always store uuids big endian (the order which the hex values are printed when printing a UUID), regardless of machine, so read in the 16 bytes and assign
-			u8 rawbytes[16];
-			if( this->ReadValues<u8>( rawbytes, 16 ) != 16 )
-				return i; // could not read further, return number of succesful reads
-
-			// assign to the values
-			dest[i].Data1 = value_from_bigendian<u32>( &rawbytes[0] );
-			dest[i].Data2 = value_from_bigendian<u16>( &rawbytes[4] );
-			dest[i].Data3 = value_from_bigendian<u16>( &rawbytes[6] );
-			memcpy( dest[i].Data4, &rawbytes[8], 8 );
-			}
-
-		return count;
+		// Read raw bytes, assumes the values are contiguous 
+		// No need for byte-swapping, the uuids are always stored as raw bytes, and ordered 
+		// big-endian (the order which the hex values are printed when printing a uuid)
+		// return number of successfully read full items
+		return this->ReadValues<u8>( (u8 *)dest, sizeof( uuid ) * count ) / sizeof(uuid); 
 		}
 
 	// hashes
