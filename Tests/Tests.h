@@ -5,20 +5,19 @@
 
 #include <gtest/gtest.h>
 
-// allow constant conditionals in all tests
-#pragma warning( disable : 4127 )
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
 #include <pds/pds.h>
 
-// include glm,  silence warnings we can't control
+// silence warnings which we can't control
+#ifdef _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4201 )
+#pragma warning( disable : 4127 )
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
-#pragma warning( pop )
 
 using namespace pds;
 
@@ -32,18 +31,5 @@ using namespace pds;
 
 #include "TestHelpers/random_vals.h"
 
+// set this to a higher number to run more passes where the values are randomized
 const size_t global_number_of_passes = 1;
-
-//#ifdef _DEBUG
-//#define pdsExpectSanityCheckDebugFailMacro( statement ) Assert::ExpectException<std::exception>( [&]() { statement } );
-//#define pdsExpectSanityCheckCoreDebugFailMacro( statement ) Assert::ExpectException<std::exception>( [&]() { statement } );
-//#else
-//#define pdsExpectSanityCheckDebugFailMacro( statement ) 
-//#define pdsExpectSanityCheckCoreDebugFailMacro( statement ) 
-//#endif
-
-//#define STANDARD_TEST_INIT() \
-//	TEST_METHOD_INITIALIZE( InitMethod )\
-//		{\
-//		setup_random_seed();\
-//		}

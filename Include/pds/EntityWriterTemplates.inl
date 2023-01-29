@@ -19,10 +19,10 @@ namespace pds
 		const u64 expected_end_pos = start_pos + key_size_in_bytes + 10; 
 
 		// write block header 
-		// write empty stand in value for now (MAXi64 on purpose), which is definitely 
+		// write empty stand in value for now (INT64_MAX on purpose), which is definitely 
 		// wrong, as to trigger any test if the value is not overwritten with the correct value
 		dstream.Write( value_type );
-		dstream.Write( (u64)MAXINT64 );
+		dstream.Write( (u64)INT64_MAX );
 		dstream.Write( key_size_in_bytes );
 		dstream.Write( (i8*)key, key_size_in_bytes );
 
@@ -50,7 +50,7 @@ namespace pds
 		static_assert((VT >= ValueType::VT_Bool) && (VT <= ValueType::VT_Hash), "Invalid type for general write_single_value template");
 
 		const u8 value_type = (u8)VT;
-		const size_t value_size = sizeof( data_type_information<T>::value_type );
+		const size_t value_size = sizeof( typename data_type_information<T>::value_type );
 		const size_t value_count = data_type_information<T>::value_count;
 		const size_t data_size_in_bytes = (data != nullptr) ? (value_size * value_count) : 0; // if data == nullptr, the block is empty
 		const size_t block_size = data_size_in_bytes + key_length;
@@ -65,7 +65,7 @@ namespace pds
 		dstream.Write( u8_block_size );
 		if( data_size_in_bytes > 0 )
 			{
-			const data_type_information<T>::value_type *pvalue = value_ptr( (*data) );
+			const typename data_type_information<T>::value_type *pvalue = value_ptr( (*data) );
 			dstream.Write( pvalue, value_count );
 			}
 		dstream.Write( (i8*)key, key_length );
@@ -193,9 +193,9 @@ namespace pds
 	template<ValueType VT, class T> inline bool write_array( MemoryWriteStream &dstream, const char *key, const u8 key_size_in_bytes, const std::vector<T> *items, const std::vector<i32> *index )
 		{
 		static_assert((VT >= ValueType::VT_Array_Bool) && (VT <= ValueType::VT_Array_Hash), "Invalid type for write_array");
-		static_assert(sizeof( data_type_information<T>::value_type ) <= 0xff, "Invalid value size, cannot exceed 255 bytes");
+		static_assert(sizeof( typename data_type_information<T>::value_type ) <= 0xff, "Invalid value size, cannot exceed 255 bytes");
 		static_assert(sizeof( u64 ) >= sizeof( size_t ), "Unsupported size_t, current code requires it to be at most 8 bytes in size, equal to an u64"); // assuming sizeof(u64) >= sizeof(size_t)
-		const size_t value_size = sizeof( data_type_information<T>::value_type );
+		const size_t value_size = sizeof( typename data_type_information<T>::value_type );
 		const size_t values_per_type = data_type_information<T>::value_count;
 
 		// record start position, we need this in the end block
@@ -220,7 +220,7 @@ namespace pds
 			// write the values
 			if( values_count > 0 )
 				{
-				const data_type_information<T>::value_type *p_values = value_ptr( *(items->data()) );
+				const typename data_type_information<T>::value_type *p_values = value_ptr( *(items->data()) );
 
 				const u64 values_expected_end_pos = dstream.GetPosition() + (values_count * value_size);
 				dstream.Write( p_values , values_count );
@@ -448,7 +448,7 @@ namespace pds
 			}
 
 		// if array_size is ~0, the array is null, so end directly
-		if( array_size == ~0 )
+		if( array_size == (size_t)~0 )
 			{
 			this->active_array_size = 0;
 			return this->active_subsection.get();
@@ -488,8 +488,8 @@ namespace pds
 		this->active_array_index = section_index;
 		this->active_array_index_start_position = this->dstream.GetPosition();
 
-		// write a temporary subsection size
-		dstream.Write( (u64)MAXINT64 );
+		// write a temporary subsection size (INT64_MAX on purpose)
+		dstream.Write( (u64)INT64_MAX );
 
 		return dstream.GetPosition() == (this->active_array_index_start_position + sizeof( u64 ));
 		}

@@ -1,11 +1,22 @@
 #include "random_vals.h"
 
 // include glm,  silence warnings we can't control
+#ifdef _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4201 )
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+
+// re-enable warnings again
+#ifdef _MSC_VER
 #pragma warning( pop )
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 template <> bool random_value<bool>() { return (bool)(rand() & 0x1); } 
 
@@ -89,7 +100,7 @@ template <> dmat4 random_value<dmat4>() { return dmat4(
 	double_rand(), double_rand(), double_rand(), double_rand()
 ) ; }
 
-template <> UUID random_value<UUID>() { return uuid_rand(); }
+template <> uuid random_value<uuid>() { return uuid_rand(); }
 
 template <> hash random_value<hash>() { return hash_rand(); }
 

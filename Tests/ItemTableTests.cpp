@@ -196,10 +196,10 @@ template<class T> void ItemTableReadWriteTests_TestKeyType( const MemoryWriteStr
 
 	// compare the values in the registries
 	EXPECT_TRUE( random_dict.Entries().size() == readback_dict.Entries().size() );
-	Dict::iterator it1 = random_dict.Entries().begin();
+	typename Dict::iterator it1 = random_dict.Entries().begin();
 	while( it1 != random_dict.Entries().end() )
 		{
-		Dict::iterator it2 = readback_dict.Entries().find( it1->first );
+		typename Dict::iterator it2 = readback_dict.Entries().find( it1->first );
 		EXPECT_TRUE( it2 != readback_dict.Entries().end() );
 
 		bool has_1 = it1->second != nullptr;

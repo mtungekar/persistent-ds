@@ -29,8 +29,7 @@ namespace pds
 
 			// read 1,2,4 or 8 byte values and make sure they are in the correct byte order
 			template <class T> u64 ReadValues( T *dest, u64 count );
-			template <> u64 ReadValues<u8>( u8 *dest, u64 count );
-
+			
 		public:
 			MemoryReadStream( const void *_Data, u64 _DataSize, bool _FlipByteOrder = false ) : Data( (u8*)_Data ), DataSize( _DataSize ), FlipByteOrder(_FlipByteOrder) {};
 
@@ -53,18 +52,6 @@ namespace pds
 
 			// read one item from the memory stream. makes sure to convert endianness
 			template <class T> T Read();
-			template <> i8 Read<i8>();
-			template <> i16 Read<i16>();
-			template <> i32 Read<i32>();
-			template <> i64 Read<i64>();
-			template <> u8 Read<u8>();
-			template <> u16 Read<u16>();
-			template <> u32 Read<u32>();
-			template <> u64 Read<u64>();
-			template <> float Read<float>();
-			template <> double Read<double>();
-			template <> uuid Read<uuid>();
-			template <> hash Read<hash>();
 
 			// read a number of items from the memory stream. makes sure to convert endianness
 			u64 Read( i8 *dest , u64 count );
@@ -193,21 +180,11 @@ namespace pds
 		{ 
 		static_assert(sizeof(uuid)==16, "Invalid size of uuid struct, needs to be exactly 16 bytes.");
 
-		for( u64 i = 0; i < count; ++i )
-			{
-			// we always store uuids big endian (the order which the hex values are printed when printing a UUID), regardless of machine, so read in the 16 bytes and assign
-			u8 rawbytes[16];
-			if( this->ReadValues<u8>( rawbytes, 16 ) != 16 )
-				return i; // could not read further, return number of succesful reads
-
-			// assign to the values
-			dest[i].Data1 = value_from_bigendian<u32>( &rawbytes[0] );
-			dest[i].Data2 = value_from_bigendian<u16>( &rawbytes[4] );
-			dest[i].Data3 = value_from_bigendian<u16>( &rawbytes[6] );
-			memcpy( dest[i].Data4, &rawbytes[8], 8 );
-			}
-
-		return count;
+		// Read raw bytes, assumes the values are contiguous 
+		// No need for byte-swapping, the uuids are always stored as raw bytes, and ordered 
+		// big-endian (the order which the hex values are printed when printing a uuid)
+		// return number of successfully read full items
+		return this->ReadValues<u8>( (u8 *)dest, sizeof( uuid ) * count ) / sizeof(uuid); 
 		}
 
 	// hashes

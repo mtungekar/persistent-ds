@@ -69,7 +69,7 @@ namespace pds
 
             // Method to set the type of the data in the varying object, either using a parameter, or as a template method
             static bool SetType( Varying &obj, data_type_index dataType, container_type_index containerType );
-            template <class _Ty> static bool SetType( Varying &obj ) { return SetType( obj, combined_type_information<_Ty>::type_index, combined_type_information<_Ty>::container_index ); };
+            template <class _Ty> static bool SetType( Varying &obj ) { return SetType( obj, combined_type_information<_Ty>::type_index, combined_type_information<_Ty>::container_index ); }
         };
 
     template <class _Ty> _Ty & Varying::Initialize()

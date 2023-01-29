@@ -40,8 +40,11 @@ def DataTypes_h():
 	lines.append('')
 	lines.append('#endif//PDS_SKIP_UUID_AND_HASH')
 	lines.append('')
-
+	lines.append('#include <limits.h>')
+	lines.append('#include <float.h>')
 	lines.append('#include <glm/fwd.hpp>')
+	lines.append('#include <ctle/uuid.h>')
+	lines.append('#include <ctle/string_funcs.h>')
 	lines.append('')
 
 	lines.append('namespace pds')
@@ -55,7 +58,7 @@ def DataTypes_h():
 		lines.append(f"\ttypedef std::uint{bit_size}_t u{bit_size};")
 	lines.append('')
 	lines.append(f"\ttypedef std::string string;")
-	lines.append(f"\ttypedef UUID uuid;")
+	lines.append(f"\tusing ctle::uuid;")
 	lines.append(f"\ttypedef HASH hash;")
 	lines.append('')
 
@@ -83,13 +86,13 @@ def DataTypes_h():
 	lines.append('\tconst string string_zero;')
 	lines.append('\tconst string string_inf;')
 	lines.append('')
-	lines.append('\tconstexpr uuid uuid_zero = {0,0,0,{0,0,0,0,0,0,0,0}};')
-	lines.append('\tconstexpr uuid uuid_inf = {0,0,0,{0,0,0,0,0,0,0,0}};')
-	lines.append('\tconstexpr uuid uuid_sup = {0xffffffff,0xffff,0xffff,{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff}};')
+	lines.append('\tconstexpr uuid uuid_zero = {0,0};')
+	lines.append('\tconstexpr uuid uuid_inf = {0,0};')
+	lines.append('\tconstexpr uuid uuid_sup = {UINT64_MAX,UINT64_MAX};')
 	lines.append('')
 	lines.append('\tconstexpr hash hash_zero = {0,0,0,0};')
 	lines.append('\tconstexpr hash hash_inf = {0,0,0,0};')
-	lines.append('\tconstexpr hash hash_sup = {~0Ui64,~0Ui64,~0Ui64,~0Ui64};')
+	lines.append('\tconstexpr hash hash_sup = {UINT64_MAX,UINT64_MAX,UINT64_MAX,UINT64_MAX};')
 	lines.append('')
 
 	# typedef vector types
@@ -208,7 +211,7 @@ def DataTypes_h():
 	lines.append('    {')
 	lines.append('    std::size_t operator()(pds::item_ref const& val) const noexcept')
 	lines.append('        {')
-	lines.append('        return std::hash<UUID>{}( UUID( val ) );')
+	lines.append('        return std::hash<ctle::uuid>{}( val );')
 	lines.append('        }')
 	lines.append('    };')
 	lines.append('')
@@ -305,9 +308,8 @@ def DataValuePointers_h():
 	lines.append('')
 	lines.append('#include <pds/pds.h>')
 	lines.append('')
-	lines.append('// include glm references, silence warnings we can\'t control')
-	lines.append('#pragma warning( push )')
-	lines.append('#pragma warning( disable : 4201 )')
+
+	lines.extend( hlp.generate_push_and_disable_warnings( [4201] , [] ) )
 	lines.append('')
 	lines.append('#include <glm/gtc/type_ptr.hpp>')
 	lines.append('')
@@ -373,11 +375,11 @@ def DataValuePointers_h():
 
 	# end of namespace
 	lines.append('    };')
+	lines.append('')
 
 	# reenable warning
-	lines.append('// re-enalbe the warnings')
-	lines.append('#pragma warning( pop )')
-
+	lines.extend( hlp.generate_pop_warnings() )
+	
 	hlp.write_lines_to_file("../Include/pds/DataValuePointers.h",lines)
 
 # used by CreatePackageHeader to list all needed defines in pds

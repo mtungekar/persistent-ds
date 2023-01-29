@@ -145,6 +145,30 @@ def generate_header():
 	lines.append('')
 	return lines
 
+def generate_push_and_disable_warnings( vswarns , gccwarns , comment = 'disable warnings in code we cannot control' ):
+	lines = []
+	lines.append(f'// {comment}')
+	lines.append('#ifdef _MSC_VER')
+	lines.append('#pragma warning( push )')
+	for w in vswarns:
+		lines.append(f'#pragma warning( disable : {w} )')
+	lines.append('#elif defined(__GNUC__)')
+	lines.append('#pragma GCC diagnostic push')
+	for w in gccwarns:
+		lines.append(f'#pragma GCC diagnostic ignored "{w}" )')	
+	lines.append('#endif')
+	return lines
+
+def generate_pop_warnings( comment = 're-enable warnings again' ):
+	lines = []
+	lines.append(f'// {comment}')
+	lines.append('#ifdef _MSC_VER')
+	lines.append('#pragma warning( pop )')
+	lines.append('#elif defined(__GNUC__)')
+	lines.append('#pragma GCC diagnostic pop')
+	lines.append('#endif')
+	return lines
+
 def run_module( name , *args ):
 	print('Running: ' + name )
 	importlib.import_module('Generators.' + name ).run( *args )

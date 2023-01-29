@@ -11,6 +11,7 @@
 
 #include <ctle/thread_safe_map.h>
 #include <ctle/readers_writer_lock.h>
+#include <ctle/uuid.h>
 
 #include "DataTypes.h"
 #include "Log.h"
@@ -23,9 +24,9 @@
 
 #define pdsRuntimeCheck( statement , errorid , errortext ) if( !(statement) ) { pdsErrorLog << "Runtime check failed: (" #statement ") error id:" << (int)errorid << pdsErrorLogEnd; throw std::exception("Sanity debug check failed: (" #statement "): Error text: " #errortext ); }
 
-#ifdef _DEBUG
-#define pdsSanityCheckDebugMacro( statement ) if( !(statement) ) { pdsErrorLog << "Sanity debug check failed: (" #statement ")" << pdsErrorLogEnd; throw std::exception("Sanity debug check failed: (" #statement ")"); }
-#define pdsSanityCheckCoreDebugMacro( statement ) if( !(statement) ) { pdsErrorLog << "Core debug sanity check failed: (" #statement ")" << pdsErrorLogEnd; throw std::exception("Core debug sanity check failed: (" #statement ")"); }
+#ifndef NDEBUG
+#define pdsSanityCheckDebugMacro( statement ) if( !(statement) ) { pdsErrorLog << "Sanity debug check failed: (" #statement ")" << pdsErrorLogEnd; throw std::runtime_error("Sanity debug check failed: (" #statement ")"); }
+#define pdsSanityCheckCoreDebugMacro( statement ) if( !(statement) ) { pdsErrorLog << "Core debug sanity check failed: (" #statement ")" << pdsErrorLogEnd; throw std::runtime_error("Core debug sanity check failed: (" #statement ")"); }
 #else
 #define pdsSanityCheckDebugMacro( statement ) 
 #define pdsSanityCheckCoreDebugMacro( statement ) 
@@ -177,96 +178,20 @@ namespace pds
 	// widens utf-8 char string to wstring
 	std::wstring widen( const std::string &str );
 
-	// creates values from big-endian raw 2, 4 or 8 byte data (template implemented for u16, u32 and u64)
-	template <class T> T value_from_bigendian( const u8 *src );
-	template <> inline u16 value_from_bigendian<u16>( const u8 *src ) { return (u16(src[0]) << 8) | u16(src[1]); }
-	template <> inline u32 value_from_bigendian<u32>( const u8 *src ) { return (u32(value_from_bigendian<u16>( &src[0] )) << 16) | u32(value_from_bigendian<u16>( &src[2] )); }
-	template <> inline u64 value_from_bigendian<u64>( const u8 *src ) { return (u64(value_from_bigendian<u32>( &src[0] )) << 32) | u64(value_from_bigendian<u32>( &src[4] )); }
+	using ctle::value_from_bigendian;
+	using ctle::bigendian_from_value;
+	using ctle::bytes_to_hex_string;
+	using ctle::hex_string_to_bytes;
+	using ctle::value_to_hex_string;
+	using ctle::hex_string_to_value;
 
-	// creates big-endian raw 2, 4 or 8 byte data from values (template implemented for u16, u32 and u64)
-	template <class T> void bigendian_from_value( u8 *dst, T value );
-	template <> inline void bigendian_from_value<u16>( u8 *dst , u16 value ) { dst[0] = u8((value >> 8) & 0xff); dst[1] = u8(value & 0xff); }
-	template <> inline void bigendian_from_value<u32>( u8 *dst , u32 value ) { bigendian_from_value<u16>( &dst[0] , u16((value >> 16) & 0xffff) ); bigendian_from_value<u16>( &dst[2] , u16(value & 0xffff) ); }
-	template <> inline void bigendian_from_value<u64>( u8 *dst , u64 value ) { bigendian_from_value<u32>( &dst[0] , u32((value >> 32) & 0xffffffff) ); bigendian_from_value<u32>( &dst[4] , u32(value & 0xffffffff) ); }
-
-	// creates a string from an array of bytes, in order
-	std::string bytes_to_hex_string( const void *bytes, size_t count );
-	template <class T> std::string value_to_hex_string( T value );
-	template <> std::string value_to_hex_string<u8>( u8 value );
-	template <> std::string value_to_hex_string<u16>( u16 value );
-	template <> std::string value_to_hex_string<u32>( u32 value );
-	template <> std::string value_to_hex_string<u64>( u64 value );
-	template <> std::string value_to_hex_string<uuid>( uuid value );
-	template <> std::string value_to_hex_string<hash>( hash value );
-
-	// retrieves bytes from a hex string of known length.
-	// note: the count is equal to the number of bytes, and the hex string is assumed to be twice the count (since two hex values is combined into one byte)
-	void hex_string_to_bytes( void *bytes, const char *hex_string, size_t count );
-	template <class T> T hex_string_to_value( const char *hex_string );
-	template <> u8 hex_string_to_value<u8>( const char *hex_string );
-	template <> u16 hex_string_to_value<u16>( const char *hex_string );
-	template <> u32 hex_string_to_value<u32>( const char *hex_string );
-	template <> u64 hex_string_to_value<u64>( const char *hex_string );
-	template <> uuid hex_string_to_value<uuid>( const char *hex_string );
-	template <> hash hex_string_to_value<hash>( const char *hex_string );
+	std::string value_to_hex_string( hash value );
 
 	// converts file path in wstring to an absolute or full file path 
 	std::wstring full_path( const std::wstring &path );
 
-	// swap byte order on one or multiple words
-	inline void swap_bytes( u8 *pA, u8 *pB )
-		{
-		u8 tmp = *pA;
-		*pA = *pB;
-		*pB = tmp;
-		}
-
-	template <class T> void swap_byte_order( T *dest );
-	template<> inline void swap_byte_order<u16>( u16 *dest )
-		{
-		swap_bytes( &((u8 *)dest)[0], &((u8 *)dest)[1] );
-		}
-	template<> inline void swap_byte_order<u32>( u32 *dest )
-		{
-		swap_bytes( &((u8 *)dest)[0], &((u8 *)dest)[3] );
-		swap_bytes( &((u8 *)dest)[1], &((u8 *)dest)[2] );
-		}
-	template<> inline void swap_byte_order<u64>( u64 *dest )
-		{
-		swap_bytes( &((u8 *)dest)[0], &((u8 *)dest)[7] );
-		swap_bytes( &((u8 *)dest)[1], &((u8 *)dest)[6] );
-		swap_bytes( &((u8 *)dest)[2], &((u8 *)dest)[5] );
-		swap_bytes( &((u8 *)dest)[3], &((u8 *)dest)[4] );
-		}
-	template <class T> void swap_byte_order( T *dest , size_t count );
-	template<> inline void swap_byte_order<u16>( u16 *dest , size_t count )
-		{
-		for( size_t i = 0; i < count; ++i )
-			{
-			swap_bytes( &((u8 *)dest)[0], &((u8 *)dest)[1] );
-			++dest;
-			}
-		}
-	template<> inline void swap_byte_order<u32>( u32 *dest , size_t count )
-		{
-		for( size_t i = 0; i < count; ++i )
-			{
-			swap_bytes( &((u8 *)dest)[0], &((u8 *)dest)[3] );
-			swap_bytes( &((u8 *)dest)[1], &((u8 *)dest)[2] );
-			++dest;
-			}
-		}
-	template<> inline void swap_byte_order<u64>( u64 *dest , size_t count )
-		{
-		for( size_t i = 0; i < count; ++i )
-			{
-			swap_bytes( &((u8 *)dest)[0], &((u8 *)dest)[7] );
-			swap_bytes( &((u8 *)dest)[1], &((u8 *)dest)[6] );
-			swap_bytes( &((u8 *)dest)[2], &((u8 *)dest)[5] );
-			swap_bytes( &((u8 *)dest)[3], &((u8 *)dest)[4] );
-			++dest;
-			}
-		}
+	using ctle::swap_bytes;
+	using ctle::swap_byte_order;
 
 	class EntityHandler
 		{

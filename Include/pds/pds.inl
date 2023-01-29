@@ -2,11 +2,16 @@
 // Licensed under the MIT license https://github.com/Cooolrik/pds/blob/main/LICENSE
 #define PDS_MAIN_BUILD_FILE
 
+// ask ctle to create the implementation code
+#define CTLE_IMPLEMENTATION
+
 #include <pds/pds.h>
 
+#ifdef _MSC_VER
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Rpc.h>
+#endif
 
 #include "SHA256.h"
 #include "DynamicTypes.h"
@@ -40,6 +45,21 @@ using std::make_pair;
 
 constexpr size_t sha256_hash_size = 32;
 
+std::string pds::value_to_hex_string( hash value )
+	{
+	static_assert(sizeof( hash ) == 32, "Error: hash is assumed to be of size 32.");
+	// note: no need to swap order of bytes. 
+	// The hash is always ordered the same, regardless of the hardware (basically a big-endian 256 bit value)
+	return bytes_to_hex_string( &value, 32 );
+	}
+
+item_ref item_ref::make_ref()
+	{
+	return item_ref::from_uuid(uuid::generate());
+	}
+
+#ifdef _MSC_VER
+
 std::wstring pds::widen( const std::string &str )
 	{
 	std::wstring ret;
@@ -61,151 +81,15 @@ std::wstring pds::widen( const std::string &str )
 	return ret;
 	}
 
-// writes array of bytes to string of hex values. the hex values will be
-// in the same order as the bytes, so if you need to convert a litte-endian
-// word into hex, be sure to flip the byte order before.
-std::string pds::bytes_to_hex_string( const void *bytes, size_t count )
-	{
-	static const char hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-
-	std::string ret;
-	const u8 *p = (const u8 *)bytes;
-	for( size_t i = 0; i < count; ++i )
-		{
-		ret += hexchars[((*p) >> 4) & 0xf]; // high nibble
-		ret += hexchars[(*p) & 0xf]; // low nibble
-		++p;
-		}
-	return ret;
-	}
-
-template <> std::string pds::value_to_hex_string<u8>( u8 value )
-	{
-	return bytes_to_hex_string( &value, sizeof( value ) );
-	}
-
-template <> std::string pds::value_to_hex_string<u16>( u16 value )
-	{
-	bigendian_from_value( (u8 *)&value, value ); // in-place make sure big endian
-	return bytes_to_hex_string( &value, sizeof( value ) );
-	}
-
-template <> std::string pds::value_to_hex_string<u32>( u32 value )
-	{
-	bigendian_from_value( (u8 *)&value, value ); // in-place make sure big endian
-	return bytes_to_hex_string( &value, sizeof( value ) );
-	}
-
-template <> std::string pds::value_to_hex_string<u64>( u64 value )
-	{
-	bigendian_from_value( (u8 *)&value, value ); // in-place make sure big endian
-	return bytes_to_hex_string( &value, sizeof( value ) );
-	}
-
-template <> std::string pds::value_to_hex_string<uuid>( uuid value )
-	{
-	std::string ret;
-
-	ret += value_to_hex_string<u32>( value.Data1 );
-	ret += "-";
-	ret += value_to_hex_string<u16>( value.Data2 );
-	ret += "-";
-	ret += value_to_hex_string<u16>( value.Data3 );
-	ret += "-";
-	ret += bytes_to_hex_string( value.Data4, 2 );
-	ret += "-";
-	ret += bytes_to_hex_string( &value.Data4[2], 6 );
-
-	return ret;
-	}
-
-template <> std::string pds::value_to_hex_string<hash>( hash value )
-	{
-	static_assert(sizeof( hash ) == 32, "Error: hash is assumed to be of size 32.");
-	// note: no need to swap order of bytes. 
-	// The hash is always ordered the same, regardless of the hardware (basically a big-endian 256 bit value)
-	return bytes_to_hex_string( &value, 32 );
-	}
-
-static inline u8 decode_hex_char( char c )
-	{
-	if( c >= '0' && c <= '9' )
-		return c - '0';
-	else if( c >= 'a' && c <= 'f' )
-		return (c - 'a') + 10;
-	else if( c >= 'A' && c <= 'F' )
-		return (c - 'A') + 10;
-
-	pdsRuntimeCheck( false, Status::EParam, "invalid hex character c" );
-	}
-
-// retrieves bytes from a hex string of known length.
-// note: the count is equal to the number of bytes, and the hex string is assumed to be twice the count (since two hex values is combined into one byte)
-void pds::hex_string_to_bytes( void *bytes, const char *hex_string, size_t count )
-	{
-	pdsRuntimeCheck( bytes, Status::EParam, "bytes cannot be nullptr" );
-
-	u8 *p = (u8 *)bytes;
-	for( size_t i = 0; i < count; ++i )
-		{
-		p[i] = decode_hex_char( hex_string[i * 2 + 0] ) << 4 
-			| decode_hex_char( hex_string[i * 2 + 1] );
-		}
-	}
-
-template <> u8 pds::hex_string_to_value<u8>( const char *hex_string )
-	{
-	u8 ret;
-	hex_string_to_bytes( &ret, hex_string, sizeof( u8 ) );
-	return ret;
-	}
-
-template <> u16 pds::hex_string_to_value<u16>( const char *hex_string )
-	{
-	u8 bytes[sizeof( u16 )];
-	hex_string_to_bytes( bytes, hex_string, sizeof( u16 ) );
-	return value_from_bigendian<u16>( bytes );
-	}
-
-template <> u32 pds::hex_string_to_value<u32>( const char *hex_string )
-	{
-	u8 bytes[sizeof( u32 )];
-	hex_string_to_bytes( bytes, hex_string, sizeof( u32 ) );
-	return value_from_bigendian<u32>( bytes );
-	}
-
-template <> u64 pds::hex_string_to_value<u64>( const char *hex_string )
-	{
-	u8 bytes[sizeof( u64 )];
-	hex_string_to_bytes( bytes, hex_string, sizeof( u64 ) );
-	return value_from_bigendian<u64>( bytes );
-	}
-
-template <> uuid pds::hex_string_to_value<uuid>( const char *hex_string )
-	{
-	pdsRuntimeCheck( hex_string[8] == '-'
-		&& hex_string[13] == '-'
-		&& hex_string[18] == '-'
-		&& hex_string[23] == '-', Status::EParam, "hex_string_to_value ill-formated hex_string" );
-
-	uuid value;
-	value.Data1 = hex_string_to_value<u32>( &hex_string[0] );
-	value.Data2 = hex_string_to_value<u16>( &hex_string[9] );
-	value.Data3 = hex_string_to_value<u16>( &hex_string[14] );
-	hex_string_to_bytes( &value.Data4[0], &hex_string[19] , 2 );
-	hex_string_to_bytes( &value.Data4[2], &hex_string[24] , 6 );
-	return value;
-	}
-
-template <> hash pds::hex_string_to_value<hash>( const char *hex_string )
-	{
-	static_assert(sizeof( hash ) == 32, "Error: hash is assumed to be of size 32.");
-	hash value;
-	hex_string_to_bytes( &value, hex_string, 32 );
-	// note: no need to swap order of bytes. 
-	// The hash is always ordered the same, regardless of the hardware (basically a big-endian 256 bit value)
-	return value;
-	}
+//template <> hash pds::hex_string_to_value<hash>( const char *hex_string )
+//	{
+//	static_assert(sizeof( hash ) == 32, "Error: hash is assumed to be of size 32.");
+//	hash value;
+//	hex_string_to_bytes( &value, hex_string, 32 );
+//	// note: no need to swap order of bytes. 
+//	// The hash is always ordered the same, regardless of the hardware (basically a big-endian 256 bit value)
+//	return value;
+//	}
 
 std::wstring pds::full_path( const std::wstring &path )
 	{
@@ -222,19 +106,6 @@ std::wstring pds::full_path( const std::wstring &path )
 	return ret;
 	}
 
-item_ref item_ref::make_ref()
-	{
-	item_ref ref;
-
-	RPC_STATUS stat = ::UuidCreate( &ref.id_m );
-	if( stat != RPC_S_OK
-		|| ref.id_m == uuid_zero )
-		{
-		throw std::exception( "Failed to generate a uuid through ::UuidCreate()" );
-		}
-
-	return ref;
-	}
 
 static std::shared_ptr<Entity> entityNew( const std::vector<const EntityHandler::PackageRecord*> &records , const char *entityTypeString )
 	{
@@ -604,3 +475,5 @@ std::pair<entity_ref, Status> EntityHandler::AddEntity( const std::shared_ptr<co
 	futr.wait();
 	return futr.get();
 	}
+
+#endif
