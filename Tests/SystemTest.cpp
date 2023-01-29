@@ -28,7 +28,7 @@ int main()
 	auto pentA = std::make_shared<TestEntityA>();
 	TestEntityA &entA = *pentA;
 	auto pentB = std::make_shared<TestEntityB>();
-	TestEntityB &entB = *pentB;
+	//TestEntityB &entB = *pentB;
 	
 	entA.Name() = "hej";
 	entA.TestVariableA().set();
