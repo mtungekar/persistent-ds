@@ -182,7 +182,7 @@ namespace pds
 		};
 
 	// widens utf-8 char string to wstring
-	std::wstring widen( const std::string &str );
+	//std::wstring widen( const std::string &str );
 
 	using ctle::value_from_bigendian;
 	using ctle::bigendian_from_value;
@@ -194,7 +194,7 @@ namespace pds
 	std::string value_to_hex_string( hash value );
 
 	// converts file path in wstring to an absolute or full file path 
-	std::wstring full_path( const std::wstring &path );
+	//std::wstring full_path( const std::wstring &path );
 
 	using ctle::swap_bytes;
 	using ctle::swap_byte_order;
@@ -219,7 +219,7 @@ namespace pds
 				};
 
 		private:
-			std::wstring Path;
+			std::string Path;
 
 			std::unordered_map<entity_ref, std::shared_ptr<const Entity>> Entities;
 			ctle::readers_writer_lock EntitiesLock;

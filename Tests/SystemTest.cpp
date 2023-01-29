@@ -10,7 +10,13 @@
 
 using namespace TestPackA;
 
+// disable warnings in code we cannot control
+#ifdef _MSC_VER
+#pragma warning( push )
 #pragma warning( disable : 4189 )
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#endif
 
 int main()
 	{

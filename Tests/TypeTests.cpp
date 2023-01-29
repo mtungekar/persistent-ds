@@ -18,21 +18,21 @@ TEST( TypeTests , StandardTypes )
 	EXPECT_EQ(sizeof(uuid) , 16);
 	EXPECT_EQ(sizeof(hash) , 32);
 
-#ifdef _MSC_VER
-	// test widen()
-	std::string str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	std::wstring expected_wstr = L"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	std::wstring wstr = widen( str );
-	EXPECT_EQ( wstr , expected_wstr );
-
-	// test full_path()
-	std::wstring rel_path( L"." );
-	std::wstring fpath = full_path( rel_path );
-	wchar_t currpath[MAX_PATH];
-	GetCurrentDirectoryW( MAX_PATH, currpath );
-	std::wstring expected_fpath( currpath );
-	EXPECT_EQ( fpath , expected_fpath );
-#endif
+//#ifdef _MSC_VER
+//	// test widen()
+//	std::string str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+//	std::wstring expected_wstr = L"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+//	std::wstring wstr = widen( str );
+//	EXPECT_EQ( wstr , expected_wstr );
+//
+//	// test full_path()
+//	std::wstring rel_path( L"." );
+//	std::wstring fpath = full_path( rel_path );
+//	wchar_t currpath[MAX_PATH];
+//	GetCurrentDirectoryW( MAX_PATH, currpath );
+//	std::wstring expected_fpath( currpath );
+//	EXPECT_EQ( fpath , expected_fpath );
+//#endif
 	}
 
 TEST( TypeTests , ByteswapFunctions )

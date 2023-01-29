@@ -36,6 +36,9 @@
 #include "EntityReader.inl"
 #include "DynamicTypes.inl"
 
+#include <iostream>
+#include <fstream>
+
 using std::pair;
 using std::make_pair;
 
@@ -66,45 +69,45 @@ namespace pds
 		return value;
 		}
 
-#ifdef _MSC_VER
-	std::wstring widen( const std::string &str )
-		{
-		std::wstring ret;
-
-		if( !str.empty() )
-			{
-			size_t wsize;
-			mbstowcs_s( &wsize, nullptr, 0, str.c_str(), 0 );
-
-			size_t alloc_wsize = wsize + 1;
-			wchar_t *wstr = new wchar_t[alloc_wsize];
-			size_t conv_count;
-			mbstowcs_s( &conv_count, wstr, alloc_wsize, str.c_str(), wsize );
-
-			ret = std::wstring( wstr );
-			delete[] wstr;
-			}
-
-		return ret;
-		}
-
-
-	std::wstring full_path( const std::wstring &path )
-		{
-		std::wstring ret;
-
-		wchar_t *buffer = new wchar_t[32768];
-		DWORD len = GetFullPathNameW( path.c_str(), 32768, buffer, nullptr );
-		if( len > 0 )
-			{
-			ret = std::wstring( buffer );
-			}
-		delete[] buffer;
-
-		return ret;
-		}
-
-#endif
+//#ifdef _MSC_VER
+//	std::wstring widen( const std::string &str )
+//		{
+//		std::wstring ret;
+//
+//		if( !str.empty() )
+//			{
+//			size_t wsize;
+//			mbstowcs_s( &wsize, nullptr, 0, str.c_str(), 0 );
+//
+//			size_t alloc_wsize = wsize + 1;
+//			wchar_t *wstr = new wchar_t[alloc_wsize];
+//			size_t conv_count;
+//			mbstowcs_s( &conv_count, wstr, alloc_wsize, str.c_str(), wsize );
+//
+//			ret = std::wstring( wstr );
+//			delete[] wstr;
+//			}
+//
+//		return ret;
+//		}
+//
+//
+//	std::wstring full_path( const std::wstring &path )
+//		{
+//		std::wstring ret;
+//
+//		wchar_t *buffer = new wchar_t[32768];
+//		DWORD len = GetFullPathNameW( path.c_str(), 32768, buffer, nullptr );
+//		if( len > 0 )
+//			{
+//			ret = std::wstring( buffer );
+//			}
+//		delete[] buffer;
+//
+//		return ret;
+//		}
+//
+//#endif
 
 	static std::shared_ptr<Entity> entityNew( const std::vector<const EntityHandler::PackageRecord*> &records , const char *entityTypeString )
 		{
@@ -201,13 +204,13 @@ namespace pds
 			}
 
 #ifdef _MSC_VER
-		std::wstring wpath = widen( path );
-
-		// make path absolute
-		wpath = full_path( wpath );
+		//std::wstring wpath = widen( path );
+		//
+		//// make path absolute
+		//wpath = full_path( wpath );
 
 		// make sure it is a directory 
-		DWORD file_attributes = GetFileAttributesW( wpath.c_str() );
+		DWORD file_attributes = GetFileAttributesA( path.c_str() );
 		if(    (file_attributes == INVALID_FILE_ATTRIBUTES)
 			|| (file_attributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY )
 			{
@@ -215,8 +218,8 @@ namespace pds
 			return Status::EParam; // invalid path
 			}
 
-		this->Path = wpath;
 #endif
+		this->Path = path;
 
 		// copy the package records
 		this->Records = records;
@@ -234,13 +237,14 @@ namespace pds
 			return Status::Ok;
 			}
 
-#ifdef _MSC_VER
 		// create the file name and path from the hash
-		const std::wstring fileName = widen( value_to_hex_string( hash( ref ) ) ) + L".dat";
-		const std::wstring filePath = pThis->Path + L"\\" + fileName;
+		const std::string fileName = value_to_hex_string( hash( ref ) ) + ".dat";
+		const std::string filePath = pThis->Path + "/" + fileName;
+
+#ifdef _MSC_VER
 
 		// open the file
-		HANDLE file_handle = ::CreateFileW( filePath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr );
+		HANDLE file_handle = ::CreateFileA( filePath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr );
 		if( file_handle == INVALID_HANDLE_VALUE )
 			{
 			// failed to open the file
@@ -296,7 +300,37 @@ namespace pds
 		::CloseHandle( file_handle );
 #else
 
+		// open the file at the end
+		std::ifstream file( filePath.c_str(), std::ios::in | std::ios::binary | std::ios::ate );
+		if( !file.is_open() )
+			{
+			// failed to open the file
+			return Status::ECantOpen;
+			}
 
+		// get the size of the file, and move to the beginning
+		u64 total_bytes_to_read = file.tellg();
+		file.seekg(0, std::ios::beg);
+
+		// cant be less in size than the size of the hash at the end
+		if( total_bytes_to_read < hash_size )
+			{
+			return Status::ECorrupted;
+			}
+
+		// allocate the data
+		std::vector<u8> allocation;
+		allocation.resize( total_bytes_to_read );
+		if( allocation.size() != total_bytes_to_read )
+			{
+			// failed to allocate the memory
+			return Status::ECantAllocate;
+			}
+		u8 *buffer = allocation.data();
+
+		// read the data
+		file.read( (char*)buffer, total_bytes_to_read);
+		file.close();
 #endif
 
 		// calculate the sha256 hash on the data, and make sure it compares correctly with the hash
@@ -419,40 +453,18 @@ namespace pds
 		hash digest = {};
 		sha.GetDigest( digest.digest );
 
-#ifdef _MSC_VER
+		// get file data
+		const u8 *writeBuffer = (u8 *)wstream.GetData();
+		const u64 totalBytesToWrite = wstream.GetSize();
+
 		// create the file name and path from the hash
-		const std::wstring fileName = widen( value_to_hex_string( digest ) ) + L".dat";
-		const std::wstring filePath = pThis->Path + L"\\" + fileName;
+		const std::string fileName = value_to_hex_string( digest ) + ".dat";
+		const std::string filePath = pThis->Path + "/" + fileName;
 
+#ifdef _MSC_VER
 		// open the file
-		HANDLE fileHandle = ::CreateFileW( filePath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr );
-		if( fileHandle != INVALID_HANDLE_VALUE )
-			{
-			// write all of the file
-			const u8 *writeBuffer = (u8 *)wstream.GetData();
-			const u64 totalBytesToWrite = wstream.GetSize();
-
-			u64 bytesWritten = 0;
-			while( bytesWritten < totalBytesToWrite )
-				{
-				// check how much to write, capped at UINT_MAX
-				u64 bytesToWrite = std::min<u64>( totalBytesToWrite - bytesWritten, UINT_MAX );
-
-				// read in bytes into the memory allocation
-				DWORD numBytesWritten = 0;
-				if( !::WriteFile( fileHandle, &writeBuffer[bytesWritten], (DWORD)bytesToWrite, &numBytesWritten, nullptr ) )
-					{
-					// failed to read
-					return std::pair<entity_ref, Status>( {}, Status::ECantWrite );
-					}
-
-				// update number of bytes that were read
-				bytesWritten += numBytesWritten;
-				}
-
-			::CloseHandle( fileHandle );
-			}
-		else
+		HANDLE fileHandle = ::CreateFileA( filePath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr );
+		if( fileHandle == INVALID_HANDLE_VALUE )
 			{
 			// file open failed. if it is because the file already exists, that is ok
 			// all other issues, return error
@@ -463,8 +475,45 @@ namespace pds
 				return std::pair<entity_ref, Status>( {}, Status::ECantOpen );
 				}
 			}
-#else
 
+		// write the file
+		u64 bytesWritten = 0;
+		while( bytesWritten < totalBytesToWrite )
+			{
+			// check how much to write, capped at UINT_MAX
+			u64 bytesToWrite = std::min<u64>( totalBytesToWrite - bytesWritten, UINT_MAX );
+
+			// write the bytes to file
+			DWORD numBytesWritten = 0;
+			if( !::WriteFile( fileHandle, &writeBuffer[bytesWritten], (DWORD)bytesToWrite, &numBytesWritten, nullptr ) )
+				{
+				// failed to write
+				return std::pair<entity_ref, Status>( {}, Status::ECantWrite );
+				}
+
+			// update number of bytes that were read
+			bytesWritten += numBytesWritten;
+			}
+
+		::CloseHandle( fileHandle );
+#else
+		// create the file
+		// we can't check if the file already exists (need to use Linux specific code)
+		std::ofstream file( filePath.c_str(), std::ios::out | std::ios::binary );
+		if( !file.is_open() )
+			{
+			// failed to open the file
+			return std::pair<entity_ref, Status>( {}, Status::ECantOpen );
+			}
+
+		// write the file
+		file.write( (const char*)writeBuffer , totalBytesToWrite );
+		if( (u64)file.tellp() != totalBytesToWrite )
+			{
+			// failed to write full file
+			return std::pair<entity_ref, Status>( {}, Status::ECantWrite );
+			}
+		file.close();
 #endif
 
 		// transfer into the Entities map 
@@ -487,3 +536,4 @@ namespace pds
 		}
 
 	}
+
