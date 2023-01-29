@@ -18,6 +18,7 @@ TEST( TypeTests , StandardTypes )
 	EXPECT_EQ(sizeof(uuid) , 16);
 	EXPECT_EQ(sizeof(hash) , 32);
 
+#ifdef _MSC_VER
 	// test widen()
 	std::string str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 	std::wstring expected_wstr = L"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
@@ -31,6 +32,7 @@ TEST( TypeTests , StandardTypes )
 	GetCurrentDirectoryW( MAX_PATH, currpath );
 	std::wstring expected_fpath( currpath );
 	EXPECT_EQ( fpath , expected_fpath );
+#endif
 	}
 
 TEST( TypeTests , ByteswapFunctions )
@@ -166,29 +168,28 @@ TEST( TypeTests , Test_item_ref )
 	item_ref ref;
 	EXPECT_TRUE( !ref );
 	uuid val = ref;
-	EXPECT_EQ( val , uuid_zero );
-	EXPECT_EQ( val , item_ref::null() );
-	EXPECT_EQ( ref , item_ref() );
+	EXPECT_TRUE( val == uuid_zero );
+	EXPECT_TRUE( val == item_ref::null() );
+	EXPECT_TRUE( ref == item_ref() );
 
 	item_ref ref2 = item_ref::make_ref();
-	EXPECT_NE( ref , ref2 );
+	EXPECT_TRUE( ref != ref2 );
 	EXPECT_TRUE( !(ref == ref2) );
-	EXPECT_LT( ref , ref2 ); // ref is zero, ref2 must be more 
+	EXPECT_TRUE( ref < ref2 ); // ref is zero, ref2 must be more 
 	val = ref2;
-	EXPECT_NE( val , uuid_zero );
-	EXPECT_LT( uuid_zero , val );
+	EXPECT_TRUE( val != uuid_zero );
+	EXPECT_TRUE( uuid_zero < val );
 
 	ref = std::move( ref2 );
-	EXPECT_NE( ref , ref2 );
+	EXPECT_TRUE( ref != ref2 );
 	EXPECT_TRUE( !(ref == ref2) );
-	EXPECT_LT( ref2 , ref ); // ref2 is zero, ref must be more 
+	EXPECT_TRUE( ref2 < ref ); // ref2 is zero, ref must be more 
 
 	ref2 = ref;
-	EXPECT_EQ( ref , ref2 );
+	EXPECT_TRUE( ref == ref2 );
 	EXPECT_TRUE( !(ref != ref2) );
 	EXPECT_TRUE( !(ref2 < ref) ); 
 	}
-
 
 TEST( TypeTests , Test_entity_ref )
 	{

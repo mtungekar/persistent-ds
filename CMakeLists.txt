@@ -96,8 +96,8 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 
 		./Tests/Tests.cpp 
 
-		# ./Tests/DirectedGraphTests.cpp
-		# ./Tests/DynamicTypesTests.cpp
+		./Tests/DirectedGraphTests.cpp
+		./Tests/DynamicTypesTests.cpp
 		# ./Tests/EntityReaderRandomTests.cpp
 		# ./Tests/EntityReadWriteTests.cpp
 		# ./Tests/EntityTests.cpp
@@ -107,7 +107,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		
 		./Tests/TypeTests.cpp 
 		./Tests/TestHelpers/random_vals.cpp 
-		# ./Tests/TestPackA/TestPackA.cpp 
+		./Tests/TestPackA/TestPackA.cpp 
 		)
 
 	target_include_directories( 

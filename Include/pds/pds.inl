@@ -53,6 +53,11 @@ std::string pds::value_to_hex_string( hash value )
 	return bytes_to_hex_string( &value, 32 );
 	}
 
+item_ref item_ref::make_ref()
+	{
+	return item_ref(uuid::generate());
+	}
+
 #ifdef _MSC_VER
 
 std::wstring pds::widen( const std::string &str )
@@ -101,10 +106,6 @@ std::wstring pds::full_path( const std::wstring &path )
 	return ret;
 	}
 
-item_ref item_ref::make_ref()
-	{
-	return item_ref(uuid::generate());
-	}
 
 static std::shared_ptr<Entity> entityNew( const std::vector<const EntityHandler::PackageRecord*> &records , const char *entityTypeString )
 	{

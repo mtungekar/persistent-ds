@@ -529,10 +529,6 @@ def CreateItemSource(item):
 	lines.append('        return true;')
 	lines.append('        }')
 	lines.append('')
-	
-	# validator code
-	lines.append(f'    bool {item.Name}::MF::Validate( const {item.Name} &obj, pds::EntityValidator &validator )')
-	lines.append('        {')
 
 	# setup validation lines first, and see if there are any lines generated
 	validation_lines = []
@@ -542,16 +538,19 @@ def CreateItemSource(item):
 		validation_lines.extend( validation.GenerateValidationCode(item,'        ') )
 		validation_lines.append('')
 
-	# if we have validation lines, setup the support code
+	# if we have validation lines, setup the support code else use empty call
 	if len(validation_lines) > 0:
+		# validator code
+		lines.append(f'    bool {item.Name}::MF::Validate( const {item.Name} &obj, pds::EntityValidator &validator )')
+		lines.append('        {')
 		lines.append('        bool success = {};')
 		lines.append('')
 		lines.extend( validation_lines )
 		lines.append('')
 	else:
-		lines.append('        // no validation, just reference the objects to silence warnings, and return')
-		lines.append('        obj;')
-		lines.append('        validator;')
+		lines.append(f'    bool {item.Name}::MF::Validate( const {item.Name} &/*obj*/, pds::EntityValidator &/*validator*/ )')
+		lines.append('        {')
+		lines.append('        // no validation defined in this class, just return true')
 
 	lines.append('        return true;')
 	lines.append('        }')
