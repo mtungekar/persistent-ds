@@ -105,8 +105,8 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		# ./Tests/ReadWriteTests.cpp
 		# ./Tests/SectionHierarchyReadWriteTests.cpp
 		
-		# ./Tests/TypeTests.cpp 
-		# ./Tests/TestHelpers/random_vals.cpp 
+		./Tests/TypeTests.cpp 
+		./Tests/TestHelpers/random_vals.cpp 
 		# ./Tests/TestPackA/TestPackA.cpp 
 		)
 

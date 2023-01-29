@@ -15,7 +15,7 @@ TEST( TypeTests , StandardTypes )
 	EXPECT_EQ(sizeof(i32) , 4);
 	EXPECT_EQ(sizeof(i64) , 8);
 	EXPECT_EQ(sizeof(uint) , 4);
-	EXPECT_EQ(sizeof(UUID) , 16);
+	EXPECT_EQ(sizeof(uuid) , 16);
 	EXPECT_EQ(sizeof(hash) , 32);
 
 	// test widen()
@@ -84,7 +84,7 @@ TEST( TypeTests , ByteswapFunctions )
 
 TEST( TypeTests , HexStringFunctions )
 	{
-	uuid uuidval = { 0x12345678 , 0xa1a2 , 0xb1b2 , { 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8 } };
+	uuid uuidval = { 0xb2b1a2a178563412 , 0xc8c7c6c5c4c3c2c1 };
 	std::string expected_hexuuidval = "12345678-a1a2-b1b2-c1c2-c3c4c5c6c7c8";
 	EXPECT_EQ( value_to_hex_string( uuidval ) , expected_hexuuidval );
 

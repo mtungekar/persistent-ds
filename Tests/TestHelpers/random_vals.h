@@ -27,14 +27,14 @@ inline double double_rand() { return double(u64_rand()); }
 
 inline ctle::uuid uuid_rand() 
 	{ 
-	const ctle::uuid id = ctle::uuid::generate();
+	const ctle::uuid id = {u64_rand(),u64_rand()};
 	return id;
 	}
 
 inline hash hash_rand() 
 	{ 
-	const hash id = {u64_rand(),u64_rand(),u64_rand(),u64_rand()};
-	return id;
+	const hash hsh = {u64_rand(),u64_rand(),u64_rand(),u64_rand()};
+	return hsh;
 	}
 
 //// random string
