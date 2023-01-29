@@ -43,8 +43,7 @@ namespace pds
 
 			// write 1,2,4 or 8 byte values and make sure they are in the correct byte order
 			template <class T> void WriteValues( const T *src, u64 count );
-			template <> void WriteValues<u8>( const u8 *src, u64 count );
-
+			
 		public:
 			MemoryWriteStream( u64 _InitialAllocationSize = InitialAllocationSize ) { this->ReserveForSize( _InitialAllocationSize ); };
 			~MemoryWriteStream() { this->FreeAllocation(); };
@@ -104,7 +103,11 @@ namespace pds
 			}
 
 		// allocate a new area
+#ifdef _MSC_VER
 		u8 *pNewData = (u8*)::VirtualAlloc( nullptr, this->DataReservedSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE );
+#elif defined(__GNUC__)
+		u8 *pNewData = (u8*)malloc(this->DataReservedSize);
+#endif
 		if( pNewData == nullptr )
 			{
 			throw std::bad_alloc();
@@ -115,7 +118,7 @@ namespace pds
 		if( this->Data )
 			{
 			memcpy( pNewData, this->Data, this->DataSize );
-			::VirtualFree( this->Data, 0, MEM_RELEASE );
+			this->FreeAllocation();
 			}
 
 		// set the new pointer
@@ -126,7 +129,12 @@ namespace pds
 		{
 		if( this->Data ) 
 			{ 
-			::VirtualFree( this->Data, 0, MEM_RELEASE ); 
+#ifdef _MSC_VER			
+			::VirtualFree( this->Data, 0, MEM_RELEASE );
+#elif defined(__GNUC__)
+			free( this->Data );
+#endif							
+			this->Data = nullptr;
 			}
 		}
 

@@ -54,8 +54,8 @@ def EntityReader_h():
 		lines.append('            // ' + type_name )
 		for type_impl in basetype.variants:
 			type_impl_name = type_impl.implementing_type
-			lines.append('            template <> bool Read<' + type_impl_name + '>( const char *key, const u8 key_length, ' + type_impl_name + ' &value );')
-			lines.append('            template <> bool Read<optional_value<' + type_impl_name + '>>( const char *key, const u8 key_length, optional_value<' + type_impl_name + '> &value );')
+			lines.append('            //template <> bool Read<' + type_impl_name + '>( const char *key, const u8 key_length, ' + type_impl_name + ' &value );')
+			lines.append('            //template <> bool Read<optional_value<' + type_impl_name + '>>( const char *key, const u8 key_length, optional_value<' + type_impl_name + '> &value );')
 		lines.append('')
 
 	# print the array types
@@ -64,10 +64,10 @@ def EntityReader_h():
 		lines.append('            // ' + type_name )
 		for type_impl in basetype.variants:
 			type_impl_name = type_impl.implementing_type
-			lines.append('            template <> bool Read<std::vector<' + type_impl_name + '>>( const char *key, const u8 key_length, std::vector<' + type_impl_name + '> &value );')
-			lines.append('            template <> bool Read<optional_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, optional_vector<' + type_impl_name + '> &value );')
-			lines.append('            template <> bool Read<idx_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, idx_vector<' + type_impl_name + '> &value );')
-			lines.append('            template <> bool Read<optional_idx_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, optional_idx_vector<' + type_impl_name + '> &value );')
+			lines.append('            //template <> bool Read<std::vector<' + type_impl_name + '>>( const char *key, const u8 key_length, std::vector<' + type_impl_name + '> &value );')
+			lines.append('            //template <> bool Read<optional_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, optional_vector<' + type_impl_name + '> &value );')
+			lines.append('            //template <> bool Read<idx_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, idx_vector<' + type_impl_name + '> &value );')
+			lines.append('            //template <> bool Read<optional_idx_vector<' + type_impl_name + '>>( const char *key, const u8 key_length, optional_idx_vector<' + type_impl_name + '> &value );')
 		lines.append('')
 
 	lines.append('		};')

@@ -66,7 +66,6 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		add_compile_options(/bigobj)
 	else()
 		add_compile_options(-Wall -Wextra -pedantic -Werror)
-		add_compile_options(-Wa,-mbig-obj)
 	endif()
 	set( CMAKE_DEBUG_POSTFIX _d )
 	
@@ -76,7 +75,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	#	./Tests/SystemTest.cpp 
 	#	./Tests/TestPackA/TestPackA.cpp 
 	#	)	
-#
+# 
 	#target_include_directories(	
 	#	systemtest 
 	#	PUBLIC ${PROJECT_SOURCE_DIR}/Include

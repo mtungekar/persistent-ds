@@ -40,7 +40,8 @@ def DataTypes_h():
 	lines.append('')
 	lines.append('#endif//PDS_SKIP_UUID_AND_HASH')
 	lines.append('')
-
+	lines.append('#include <limits.h>')
+	lines.append('#include <float.h>')
 	lines.append('#include <glm/fwd.hpp>')
 	lines.append('#include <ctle/uuid.h>')
 	lines.append('#include <ctle/string_funcs.h>')
@@ -87,11 +88,11 @@ def DataTypes_h():
 	lines.append('')
 	lines.append('\tconstexpr uuid uuid_zero = {0,0};')
 	lines.append('\tconstexpr uuid uuid_inf = {0,0};')
-	lines.append('\tconstexpr uuid uuid_sup = {~0Ui64,~0Ui64};')
+	lines.append('\tconstexpr uuid uuid_sup = {UINT64_MAX,UINT64_MAX};')
 	lines.append('')
 	lines.append('\tconstexpr hash hash_zero = {0,0,0,0};')
 	lines.append('\tconstexpr hash hash_inf = {0,0,0,0};')
-	lines.append('\tconstexpr hash hash_sup = {~0Ui64,~0Ui64,~0Ui64,~0Ui64};')
+	lines.append('\tconstexpr hash hash_sup = {UINT64_MAX,UINT64_MAX,UINT64_MAX,UINT64_MAX};')
 	lines.append('')
 
 	# typedef vector types

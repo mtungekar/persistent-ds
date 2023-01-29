@@ -45,6 +45,16 @@ using std::make_pair;
 
 constexpr size_t sha256_hash_size = 32;
 
+std::string pds::value_to_hex_string( hash value )
+	{
+	static_assert(sizeof( hash ) == 32, "Error: hash is assumed to be of size 32.");
+	// note: no need to swap order of bytes. 
+	// The hash is always ordered the same, regardless of the hardware (basically a big-endian 256 bit value)
+	return bytes_to_hex_string( &value, 32 );
+	}
+
+#ifdef _MSC_VER
+
 std::wstring pds::widen( const std::string &str )
 	{
 	std::wstring ret;
@@ -65,16 +75,6 @@ std::wstring pds::widen( const std::string &str )
 
 	return ret;
 	}
-
-
-std::string pds::value_to_hex_string( hash value )
-	{
-	static_assert(sizeof( hash ) == 32, "Error: hash is assumed to be of size 32.");
-	// note: no need to swap order of bytes. 
-	// The hash is always ordered the same, regardless of the hardware (basically a big-endian 256 bit value)
-	return bytes_to_hex_string( &value, 32 );
-	}
-
 
 //template <> hash pds::hex_string_to_value<hash>( const char *hex_string )
 //	{
@@ -474,3 +474,5 @@ std::pair<entity_ref, Status> EntityHandler::AddEntity( const std::shared_ptr<co
 	futr.wait();
 	return futr.get();
 	}
+
+#endif
