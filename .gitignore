@@ -4,6 +4,7 @@
 /Include/pds/EntityWriter.h
 /Include/pds/ValueTypes.h
 .vs
+.vscode
 __pycache__
 x64
 *.user

@@ -4,6 +4,9 @@
 #pragma once
 
 #include "pds.h"
+#include "EntityWriter.h"
+#include "EntityReader.h"
+#include "EntityValidator.h"
 
 #include <stack>
 #include <set>
@@ -203,7 +206,6 @@ namespace pds
 			static bool Read( _MgmCl &obj , EntityReader &reader )
 				{
 				size_t map_size = {};
-				typename _MgmCl::iterator it = {};
 
 				// read the roots 
 				std::vector<_Ty> roots;

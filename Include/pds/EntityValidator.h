@@ -24,12 +24,8 @@ namespace pds
 		u64 ErrorIds = 0;
 
 		public:
-			std::ostream &ReportError( u64 errorid , const char *funcsig, const char *filename, int fileline ) 
+			std::ostream &ReportError( u64 errorid , const char */*funcsig*/, const char */*filename*/, int /*fileline*/ ) 
 				{ 
-				funcsig;
-				filename;
-				fileline;
-
 				std::cout << "Validation error: errorid=" << errorid << "\n" << "\t";
 				++this->ErrorCount;
 				this->ErrorIds |= errorid;

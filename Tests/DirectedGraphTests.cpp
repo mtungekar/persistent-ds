@@ -3,6 +3,7 @@
 
 #include "Tests.h"
 
+#include <ctle/uuid.h>
 #include <pds/DirectedGraph.h>
 #include <pds/EntityValidator.h>
 #include <pds/EntityWriter.inl>
@@ -73,7 +74,7 @@ TEST( DirectedGraphTests, DirectedGraphAcyclicTest )
 	validator.ClearErrorCount();
 	Graph::MF::Validate( dg, validator );
 	EXPECT_NE( validator.GetErrorCount() , uint(0) );
-	EXPECT_EQ( validator.GetErrorIds() , ValidationError::InvalidSetup );
+	EXPECT_TRUE( validator.GetErrorIds() == ValidationError::InvalidSetup );
 	}
 
 TEST( DirectedGraphTests, DirectedGraphSingleRootTest )
@@ -98,7 +99,7 @@ TEST( DirectedGraphTests, DirectedGraphSingleRootTest )
 	validator.ClearErrorCount();
 	Graph::MF::Validate( dg, validator );
 	EXPECT_NE( validator.GetErrorCount() , uint(0) );
-	EXPECT_EQ( validator.GetErrorIds() , ValidationError::InvalidCount );
+	EXPECT_TRUE( validator.GetErrorIds() == ValidationError::InvalidCount );
 	}
 
 TEST( DirectedGraphTests, DirectedGraphRootedTest )
@@ -138,7 +139,7 @@ TEST( DirectedGraphTests, DirectedGraphSceneGraphTest )
 	setup_random_seed();
 
 	// single root, acyclic, with root defined in the Roots list
-	typedef DirectedGraph<uuid, (DirectedGraphFlags::Acyclic | DirectedGraphFlags::Rooted | DirectedGraphFlags::SingleRoot)> Graph;
+	typedef DirectedGraph<ctle::uuid, (DirectedGraphFlags::Acyclic | DirectedGraphFlags::Rooted | DirectedGraphFlags::SingleRoot)> Graph;
 
 	// create a tree, which by definition does not have cycles, a single root, and add the root to the roots list
 	Graph dg;
@@ -161,17 +162,21 @@ TEST( DirectedGraphTests, DirectedGraphSceneGraphTest )
 		dg.Edges().insert( std::pair<uuid, uuid>( p, leaf_node ) );
 		}
 
+	uuid id = uuid::generate();
+
+	std::cout << id << std::endl;
+
 	// make sure this is valid (no cycles)
 	EntityValidator validator;
 	Graph::MF::Validate( dg, validator );
 	EXPECT_EQ( validator.GetErrorCount() , uint(0) );
-
+	
 	// add two new roots, insert a cycle (leaf node points at original root, which is no longer a root), dont add the new roots to the root list, and add two identical edges to the graph
 	dg.Edges().insert( std::pair<uuid, uuid>( random_value<uuid>(), root_node ) );
 	dg.Edges().insert( std::pair<uuid, uuid>( random_value<uuid>(), root_node ) );
 	dg.Edges().insert( std::pair<uuid, uuid>( leaf_node, root_node ) );
 	dg.Edges().insert( std::pair<uuid, uuid>( leaf_node, root_node ) );
-
+	
 	// make sure this is not valid anymore, and that the error the missing root node in the Roots list
 	validator.ClearErrorCount();
 	Graph::MF::Validate( dg, validator );

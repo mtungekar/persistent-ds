@@ -5,8 +5,10 @@
 
 #include "pds.h"
 
+#ifdef _MSC_VER
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#endif
 
 namespace pds
 	{
@@ -43,8 +45,7 @@ namespace pds
 
 			// write 1,2,4 or 8 byte values and make sure they are in the correct byte order
 			template <class T> void WriteValues( const T *src, u64 count );
-			template <> void WriteValues<u8>( const u8 *src, u64 count );
-
+			
 		public:
 			MemoryWriteStream( u64 _InitialAllocationSize = InitialAllocationSize ) { this->ReserveForSize( _InitialAllocationSize ); };
 			~MemoryWriteStream() { this->FreeAllocation(); };
@@ -104,7 +105,11 @@ namespace pds
 			}
 
 		// allocate a new area
+#ifdef _MSC_VER
 		u8 *pNewData = (u8*)::VirtualAlloc( nullptr, this->DataReservedSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE );
+#elif defined(__GNUC__)
+		u8 *pNewData = (u8*)malloc(this->DataReservedSize);
+#endif
 		if( pNewData == nullptr )
 			{
 			throw std::bad_alloc();
@@ -115,7 +120,7 @@ namespace pds
 		if( this->Data )
 			{
 			memcpy( pNewData, this->Data, this->DataSize );
-			::VirtualFree( this->Data, 0, MEM_RELEASE );
+			this->FreeAllocation();
 			}
 
 		// set the new pointer
@@ -126,7 +131,12 @@ namespace pds
 		{
 		if( this->Data ) 
 			{ 
-			::VirtualFree( this->Data, 0, MEM_RELEASE ); 
+#ifdef _MSC_VER			
+			::VirtualFree( this->Data, 0, MEM_RELEASE );
+#elif defined(__GNUC__)
+			free( this->Data );
+#endif							
+			this->Data = nullptr;
 			}
 		}
 
@@ -242,11 +252,10 @@ namespace pds
 		{ 
 		static_assert(sizeof(uuid)==16, "Invalid size of uuid struct, needs to be exactly 16 bytes.");
 
-		for( u64 i = 0; i < count; ++i )
-			{
-			// write raw bytes
-			this->WriteValues<u8>( src[i].bytes().data(), src->bytes().size() );
-			}
+		// Write raw bytes, assumes the values are contiguous 
+		// No need for byte-swapping, the uuids are always stored as raw bytes, and ordered 
+		// big-endian (the order which the hex values are printed when printing a guid)
+		this->WriteValues<u8>( (const u8*)src, sizeof(uuid)*count );
 		}
 
 	// hashes

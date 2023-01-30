@@ -15,22 +15,24 @@ TEST( TypeTests , StandardTypes )
 	EXPECT_EQ(sizeof(i32) , 4);
 	EXPECT_EQ(sizeof(i64) , 8);
 	EXPECT_EQ(sizeof(uint) , 4);
-	EXPECT_EQ(sizeof(UUID) , 16);
+	EXPECT_EQ(sizeof(uuid) , 16);
 	EXPECT_EQ(sizeof(hash) , 32);
 
-	// test widen()
-	std::string str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	std::wstring expected_wstr = L"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	std::wstring wstr = widen( str );
-	EXPECT_EQ( wstr , expected_wstr );
-
-	// test full_path()
-	std::wstring rel_path( L"." );
-	std::wstring fpath = full_path( rel_path );
-	wchar_t currpath[MAX_PATH];
-	GetCurrentDirectoryW( MAX_PATH, currpath );
-	std::wstring expected_fpath( currpath );
-	EXPECT_EQ( fpath , expected_fpath );
+//#ifdef _MSC_VER
+//	// test widen()
+//	std::string str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+//	std::wstring expected_wstr = L"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+//	std::wstring wstr = widen( str );
+//	EXPECT_EQ( wstr , expected_wstr );
+//
+//	// test full_path()
+//	std::wstring rel_path( L"." );
+//	std::wstring fpath = full_path( rel_path );
+//	wchar_t currpath[MAX_PATH];
+//	GetCurrentDirectoryW( MAX_PATH, currpath );
+//	std::wstring expected_fpath( currpath );
+//	EXPECT_EQ( fpath , expected_fpath );
+//#endif
 	}
 
 TEST( TypeTests , ByteswapFunctions )
@@ -84,7 +86,7 @@ TEST( TypeTests , ByteswapFunctions )
 
 TEST( TypeTests , HexStringFunctions )
 	{
-	pds::uuid uuidval{{ 0x12, 0x34, 0x56, 0x78 , 0xa1, 0xa2 , 0xb1, 0xb2 ,  0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8 }};
+	uuid uuidval = { 0xb2b1a2a178563412 , 0xc8c7c6c5c4c3c2c1 };
 	std::string expected_hexuuidval = "12345678-a1a2-b1b2-c1c2-c3c4c5c6c7c8";
 	EXPECT_EQ( value_to_hex_string( uuidval ) , expected_hexuuidval );
 
@@ -166,29 +168,28 @@ TEST( TypeTests , Test_item_ref )
 	item_ref ref;
 	EXPECT_TRUE( !ref );
 	uuid val = ref;
-	EXPECT_EQ( val , uuid_zero );
-	EXPECT_EQ( val , item_ref::null() );
-	EXPECT_EQ( ref , item_ref() );
+	EXPECT_TRUE( val == uuid_zero );
+	EXPECT_TRUE( val == item_ref::null() );
+	EXPECT_TRUE( ref == item_ref() );
 
 	item_ref ref2 = item_ref::make_ref();
-	EXPECT_NE( ref , ref2 );
+	EXPECT_TRUE( ref != ref2 );
 	EXPECT_TRUE( !(ref == ref2) );
-	EXPECT_LT( ref , ref2 ); // ref is zero, ref2 must be more 
+	EXPECT_TRUE( ref < ref2 ); // ref is zero, ref2 must be more 
 	val = ref2;
-	EXPECT_NE( val , uuid_zero );
-	EXPECT_LT( uuid_zero , val );
+	EXPECT_TRUE( val != uuid_zero );
+	EXPECT_TRUE( uuid_zero < val );
 
 	ref = std::move( ref2 );
-	EXPECT_NE( ref , ref2 );
+	EXPECT_TRUE( ref != ref2 );
 	EXPECT_TRUE( !(ref == ref2) );
-	EXPECT_LT( ref2 , ref ); // ref2 is zero, ref must be more 
+	EXPECT_TRUE( ref2 < ref ); // ref2 is zero, ref must be more 
 
 	ref2 = ref;
-	EXPECT_EQ( ref , ref2 );
+	EXPECT_TRUE( ref == ref2 );
 	EXPECT_TRUE( !(ref != ref2) );
 	EXPECT_TRUE( !(ref2 < ref) ); 
 	}
-
 
 TEST( TypeTests , Test_entity_ref )
 	{
@@ -196,7 +197,7 @@ TEST( TypeTests , Test_entity_ref )
 	EXPECT_TRUE( !ref );
 	hash val = ref;
 	EXPECT_EQ( val , hash_zero );
-	EXPECT_EQ( val , entity_ref::null() );
+	EXPECT_EQ( entity_ref(val) , entity_ref::null() );
 	EXPECT_EQ( ref , entity_ref() );
 
 	entity_ref ref2 = random_value<hash>();

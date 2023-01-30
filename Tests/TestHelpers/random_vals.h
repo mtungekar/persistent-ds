@@ -25,16 +25,16 @@ inline u64 u64_rand() { return u64(u32_rand()) << 32 | u64(u32_rand()); }
 inline float float_rand() { return float(u64_rand()); } 
 inline double double_rand() { return double(u64_rand()); } 
 
-inline uuid uuid_rand() 
+inline ctle::uuid uuid_rand() 
 	{ 
-	const uuid id{{u8_rand(), u8_rand(), u8_rand(), u8_rand(),u8_rand(), u8_rand(), u8_rand(), u8_rand(),u8_rand(), u8_rand(), u8_rand(), u8_rand(),u8_rand(), u8_rand(), u8_rand(), u8_rand() }};
+	const ctle::uuid id = {u64_rand(),u64_rand()};
 	return id;
 	}
 
 inline hash hash_rand() 
 	{ 
-	const hash id = {u64_rand(),u64_rand(),u64_rand(),u64_rand()};
-	return id;
+	const hash hsh = {u64_rand(),u64_rand(),u64_rand(),u64_rand()};
+	return hsh;
 	}
 
 //// random string

@@ -1,11 +1,23 @@
 #include "random_vals.h"
 
 // include glm,  silence warnings we can't control
+#ifdef _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4201 )
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+
+// re-enable warnings again
+#ifdef _MSC_VER
 #pragma warning( pop )
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 template <> bool random_value<bool>() { return (bool)(rand() & 0x1); } 
 

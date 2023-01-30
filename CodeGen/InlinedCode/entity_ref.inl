@@ -14,6 +14,9 @@
 			entity_ref &operator=( entity_ref &&other ) noexcept { this->hash_m = other.hash_m; other.hash_m = hash_zero; return *this; }
 			~entity_ref() = default;
 
+			// explicitly create from hash
+			static entity_ref from_hash( const hash &hsh ) { return entity_ref(hsh); }
+
 			// comparing & sorting
 			bool operator==( const entity_ref &rval ) const { return this->hash_m == rval.hash_m; }
 			bool operator!=( const entity_ref &rval ) const { return this->hash_m != rval.hash_m; }

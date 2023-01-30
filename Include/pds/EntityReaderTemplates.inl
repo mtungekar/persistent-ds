@@ -82,7 +82,7 @@ namespace pds
 		{
 		static_assert((VT >= ValueType::VT_Bool) && (VT <= ValueType::VT_Hash), "Invalid type for generic template of read_single_item");
 
-		const u64 value_size = sizeof( data_type_information<T>::value_type );
+		const u64 value_size = sizeof( typename data_type_information<T>::value_type );
 		const u64 value_count = data_type_information<T>::value_count;
 
 		// record start position, for validation
@@ -354,7 +354,7 @@ namespace pds
 		{
 		static_assert((VT >= ValueType::VT_Array_Bool) && (VT <= ValueType::VT_Array_Hash), "Invalid type for generic read_array template");
 		static_assert(sizeof( u64 ) >= sizeof( size_t ), "Unsupported size_t, current code requires it to be at max 8 bytes in size, equal to u64");
-		const size_t value_size = sizeof( data_type_information<T>::value_type );
+		const size_t value_size = sizeof( typename data_type_information<T>::value_type );
 
 		pdsSanityCheckCoreDebugMacro( dest_items );
 
