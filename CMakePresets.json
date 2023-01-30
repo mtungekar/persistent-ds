@@ -61,7 +61,7 @@
             }
         },
         {
-            "name": "linux",
+            "name": "linux-clang",
             "displayName": "Linux x64",
             "description": "Default Linux x64 (Clang).",
             "inherits": [ "base" ],
@@ -72,6 +72,29 @@
             "cacheVariables": {
                 "CMAKE_CXX_COMPILER": "clang++",
                 "CAMKE_C_COMPILER" : "clang",
+                "ENABLE_UNIT_TESTING" : "ON",
+                "ENABLE_PERFORMACE_TESTING" : "ON",
+                "C_STANDARD": "11",
+                "CXX_STANDARD": "14"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [ "Linux" ]
+                  }
+            }
+        },
+        {
+            "name": "linux-gcc",
+            "displayName": "Linux x64",
+            "description": "Default Linux x64 (GCC).",
+            "inherits": [ "base" ],
+            "architecture":{
+                "strategy": "external",
+                "value": "x64"
+            },
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "g++",
+                "CAMKE_C_COMPILER" : "gcc",
                 "ENABLE_UNIT_TESTING" : "ON",
                 "ENABLE_PERFORMACE_TESTING" : "ON",
                 "C_STANDARD": "11",
@@ -102,19 +125,37 @@
             }
         },
         {
-            "name": "x64-linux-debug",
+            "name": "x64-linux-debug-clang",
             "displayName": "Linux x64 Debug (Configure)",
             "description": "Linux x64 Debug (Configure)",
-            "inherits": [ "linux" ],
+            "inherits": [ "linux-clang" ],
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
-            "name": "x64-linux-release",
+            "name": "x64-linux-release-clang",
             "displayName": "Linux x64 Release (Configure)",
             "description": "Linux x64 Debug (Configure)",
-            "inherits": [ "linux" ],
+            "inherits": [ "linux-clang" ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "x64-linux-debug-gcc",
+            "displayName": "Linux x64 Debug (Configure)",
+            "description": "Linux x64 Debug (Configure)",
+            "inherits": [ "linux-gcc" ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x64-linux-release-gcc",
+            "displayName": "Linux x64 Release (Configure)",
+            "description": "Linux x64 Debug (Configure)",
+            "inherits": [ "linux-gcc" ],
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
@@ -157,17 +198,31 @@
             "inherits":"clean-build"
         },
         {
-            "name": "x64-linux-debug",
+            "name": "x64-linux-debug-clang",
             "displayName": "Linux x64 Debug (Build)",
             "description": "Linux x64 Debug (Build)",
-            "configurePreset": "x64-linux-debug",
+            "configurePreset": "x64-linux-debug-clang",
             "inherits":"clean-build"
         },
         {
-            "name": "x64-linux-release",
+            "name": "x64-linux-release-clang",
             "displayName": "Linux x64 Release (Build)",
             "description": "Linux x64 Release (Build)",
-            "configurePreset": "x64-linux-release",
+            "configurePreset": "x64-linux-release-clang",
+            "inherits":"clean-build"
+        },
+        {
+            "name": "x64-linux-debug-gcc",
+            "displayName": "Linux x64 Debug (Build)",
+            "description": "Linux x64 Debug (Build)",
+            "configurePreset": "x64-linux-debug-gcc",
+            "inherits":"clean-build"
+        },
+        {
+            "name": "x64-linux-release-gcc",
+            "displayName": "Linux x64 Release (Build)",
+            "description": "Linux x64 Release (Build)",
+            "configurePreset": "x64-linux-release-gcc",
             "inherits":"clean-build"
         }
     ],
@@ -197,9 +252,9 @@
             }
         },
         {
-            "name": "x64-linux-debug",
+            "name": "x64-linux-debug-clang",
             "displayName": "Linux Debug Tests",
-            "configurePreset": "x64-linux-debug",
+            "configurePreset": "x64-linux-debug-clang",
             "output": {
                 "outputOnFailure": true
             },
@@ -209,9 +264,33 @@
             }
         },
         {
-            "name": "x64-linux-release",
+            "name": "x64-linux-release-clang",
             "displayName": "Linux Release Tests",
-            "configurePreset": "x64-linux-release",
+            "configurePreset": "x64-linux-release-clang",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error", 
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "x64-linux-debug-gcc",
+            "displayName": "Linux Debug Tests",
+            "configurePreset": "x64-linux-debug-gcc",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error", 
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "x64-linux-release-gcc",
+            "displayName": "Linux Release Tests",
+            "configurePreset": "x64-linux-release-gcc",
             "output": {
                 "outputOnFailure": true
             },

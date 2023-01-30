@@ -77,8 +77,6 @@ target_include_directories(${TESTS_EXECUTABLE} PRIVATE ${PICOSHA2_INCLUDE_DIRS})
 # target specfic compiler options
 if(MSVC)
     target_compile_options(${TESTS_EXECUTABLE} PRIVATE /bigobj)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-target_compile_options(${TESTS_EXECUTABLE} PRIVATE -Wa,-mbig-obj)
 else()
     message(AUTHOR_WARNING "No bigobj set for '${CMAKE_CXX_COMPILER_ID}' compiler.")
 endif()
