@@ -49,7 +49,6 @@
             "cacheVariables": {
                 "CMAKE_CXX_COMPILER": "cl",
                 "ENABLE_UNIT_TESTING" : "ON",
-                "ENABLE_PERFORMACE_TESTING" : "ON",
                 "C_STANDARD": "11",
                 "CXX_STANDARD": "14",
                 "MSVC_TOOLSET_VERSION": "143"
@@ -73,7 +72,6 @@
                 "CMAKE_CXX_COMPILER": "clang++",
                 "CAMKE_C_COMPILER" : "clang",
                 "ENABLE_UNIT_TESTING" : "ON",
-                "ENABLE_PERFORMACE_TESTING" : "ON",
                 "C_STANDARD": "11",
                 "CXX_STANDARD": "14"
             },
@@ -96,7 +94,6 @@
                 "CMAKE_CXX_COMPILER": "g++",
                 "CAMKE_C_COMPILER" : "gcc",
                 "ENABLE_UNIT_TESTING" : "ON",
-                "ENABLE_PERFORMACE_TESTING" : "ON",
                 "C_STANDARD": "11",
                 "CXX_STANDARD": "14"
             },
@@ -171,17 +168,16 @@
         {
             "name": "clean-build",
             "description": "Clean build",
-            "configurePreset": "core-build",
+            "inherits": "core-build",
             "hidden": true,
             "cleanFirst": true
         },
         {
             "name": "verbose-build",
             "description": "Clean build with verbose output",
-            "configurePreset": "core-build",
+            "inherits": "core-build",
             "hidden": true,
-            "verbose": true,
-            "cleanFirst": true
+            "verbose": true
         },
         {
             "name": "x64-win-debug",
