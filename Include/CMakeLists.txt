@@ -36,7 +36,9 @@ set(PUBLIC_HEADER_SET
     pds/pds.inl
     pds/SHA256.h
     pds/SHA256.inl
-    pds/Varying.h
+    pds/ValueTypes.h
+    pds/ValueTypes.inl
+    pds/Varying.h  
     pds/Varying.inl
 )
 
