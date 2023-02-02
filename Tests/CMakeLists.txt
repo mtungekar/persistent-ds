@@ -3,7 +3,6 @@
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/TestFolder)
 
 # packages used by the executables
-find_package(ctle CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 find_package(ctle CONFIG REQUIRED)
