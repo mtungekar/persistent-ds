@@ -42,6 +42,7 @@ endif()
 # options can be setup in CMakePresets.json/CMkaeUserPrests.json (cacheVariables). Or passed through the command lines.
 option(ENABLE_UNIT_TESTING "Enable Test Builds" OFF)
 option(ENABLE_CLANG_FORMAT "Enable clang format for generated code." OFF)
+option(ENABLE_FUZZING "Enable fuzzing using libfuzzer." OFF)
 
 include(${CMAKE_SOURCE_DIR}/cmake/project_settings.cmake)
 include (${CMAKE_SOURCE_DIR}/cmake/compiler_warnings.cmake)
@@ -80,6 +81,11 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	# add include subdirectory (has its own list files with install setup)
 	add_subdirectory(Include)
 
+	# enable fuzzing
+	if(ENABLE_FUZZING)
+		add_subdirectory(Fuzzing)
+	endif()
+	
 	# if unit testing is enabeld add Test Directory
 	if(ENABLE_UNIT_TESTING)
   		enable_testing()
